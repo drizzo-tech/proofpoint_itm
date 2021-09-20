@@ -1,0 +1,10 @@
+{
+    "ITM": {
+        "base_url": "https://oit-ps-lab.explore.proofpoint.com",
+        "client_id": "bcdd5493-b055-496c-b302-9f5799d8ce5a",
+        "client_secret": "3U7tGZShvNKALTUT1ndlyFIBM6WSPdaplrAIH5MfRM",
+        "username": "",
+        "password": "",
+        "grant_type": "client_credentials"
+    }
+}
