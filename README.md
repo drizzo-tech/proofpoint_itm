@@ -5,3 +5,11 @@ Proofpoint ITM API client library for python
 ```
 python -m pip install proofpoint_itm
 ```
+
+## Usage
+```
+itm_client = ITMClient(
+    <itm console url>,
+    <api client id>,
+    <api client secret>)
+```
