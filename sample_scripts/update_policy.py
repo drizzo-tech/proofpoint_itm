@@ -1,8 +1,6 @@
 import json
 import argparse
 from proofpoint_itm import ITMClient
-import pdb
-
 
 
 parser = argparse.ArgumentParser()
@@ -31,7 +29,7 @@ policy_id = policy['data'][0]['id']
 with open (args.file, 'r') as f:
     usernames = [u.strip() for u in f]
 
-pdb.set_trace()
+# update policy
 if args.action == 'update':
     # build web request body
     data = {
@@ -53,8 +51,10 @@ if args.action == 'update':
         print(f'Error during policy update: {err_msg}')
 
 elif args.action == 'overwrite':
+    # modify the policy data previously pulled
     policy['data'][0]['policy']['match']['simple']['rules'][0]['user.username'] = usernames
     
+    # reset policy data to overwrite
     policy_update = itm_client.overwrite_policy(policy_id, policy['data'][0])
     if policy_update['_status']['status'] != 200:
         msg = policy_update['_status']['message']
