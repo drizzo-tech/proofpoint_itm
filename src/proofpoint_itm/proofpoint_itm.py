@@ -86,7 +86,26 @@ class ITMClient(object):
     def update_predicate(self, id, data):
         endpoint = f'/v2/apis/depot/predicates/{id}'
         return self._get_response('PUT', endpoint, data=data)
+
+    def get_policies(self, params=None):
+        endpoint = f'/v2/apis/registry/policies'
+        return self._get_response('GET', endpoint, params=params)
+
+    def get_policy(self, id, includes='*'):
+        endpoint = f'/v2/apis/registry/policies/{id}'
+        params = {
+            'includes': includes
+        }
+        return self._get_response('GET', endpoint, params=params)
         
+
+    def update_policy(self, id, data):
+        endpoint = f'/v2/apis/registry/policies/{id}'
+        return self._get_response('PATCH', endpoint, data=data)
+
+    def overwrite_policy(self, id, data):
+        endpoint = f'/v2/apis/registry/policies/{id}'
+        return self._get_response('PUT', endpoint, data=data)
 
     def _prepare_request(self, method, endpoint, **kwargs):
         url = self.base_url + endpoint
@@ -113,7 +132,4 @@ class ITMClient(object):
         resp = session.send(req,
             verify=self.verify
         )
-        if resp.status_code == 200:
-            return resp.json()
-        else:
-            return resp.text
+        return resp.json()

@@ -1,8 +1,8 @@
 {
     "ITM": {
-        "base_url": "https://oit-ps-lab.explore.proofpoint.com",
-        "client_id": "bcdd5493-b055-496c-b302-9f5799d8ce5a",
-        "client_secret": "3U7tGZShvNKALTUT1ndlyFIBM6WSPdaplrAIH5MfRM",
+        "base_url": "https://pptproserv.explore.proofpoint.com",
+        "client_id": "9efa9eff-ba98-48c3-832a-440d50d758aa",
+        "client_secret": "hfGZJ5Iz2X59LzNGkxhfSq2zy1F5ArrySMpN99cI2F",
         "username": "",
         "password": "",
         "grant_type": "client_credentials"
