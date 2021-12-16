@@ -130,3 +130,6 @@ dmypy.json
 
 # dev testing
 dev/
+
+# OS Files
+.DS_Store
