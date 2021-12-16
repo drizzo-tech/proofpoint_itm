@@ -107,6 +107,35 @@ class ITMClient(object):
         endpoint = f'/v2/apis/registry/policies/{id}'
         return self._get_response('PUT', endpoint, data=data)
 
+    def get_activity(self, entities='event', data=''):
+        """
+        Queries activity API using export json from explortions
+        Pass entity type with entities = event,casb,endpoint,audit
+        or any combination of those values
+
+        Pass the json query string as data
+        """
+        endpoint = '/v2/apis/activity/queries'
+
+        params = {
+            'limit': 100,
+            'offset': 0,
+            'entityTypes': entities,
+        }
+
+        events = []
+        resp = self._get_response('POST', endpoint, params=params, data=data)
+        events += resp['data']
+        total = resp['_meta']['stats']['total']
+        retrieved = len(events)
+        while retrieved < total:
+            params['offset'] = params['offset'] + 100
+            resp = self._get_response('POST', endpoint, params=params, data=data)
+            events += resp['data']
+            retrieved = len(events)
+
+        return events
+
     def _prepare_request(self, method, endpoint, **kwargs):
         url = self.base_url + endpoint
         req = requests.Request(method, url)
