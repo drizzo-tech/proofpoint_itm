@@ -6,7 +6,7 @@ from proofpoint_itm import ITMClient
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-s", "--settings", default="settings.json", help="Settings file")
-parser.add_argument("-q", "--query", default="query.json",required=True, help="Query file (json format)")
+parser.add_argument("-q", "--query", required=True, help="Query file (json format)")
 parser.add_argument("-o", "--outfile", help="Output file name/path")
 args = parser.parse_args()
 
