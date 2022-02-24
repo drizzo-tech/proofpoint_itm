@@ -1,7 +1,7 @@
 {
     "ITM": {
         "base_url": "https://<your customer name>.explore.proofpoint.com",
-        "client_id": "<your client id",
+        "client_id": "<your client id>",
         "client_secret": "<your client secrete>",
         "username": "",
         "password": "",

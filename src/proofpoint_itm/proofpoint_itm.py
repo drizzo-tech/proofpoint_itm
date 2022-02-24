@@ -107,6 +107,23 @@ class ITMClient(object):
         endpoint = f'/v2/apis/registry/policies/{id}'
         return self._get_response('PUT', endpoint, data=data)
 
+    def get_dictionaries(self, params=None):
+        endpoint = f'/v2/apis/ruler/configurations/dlp/dictionaries'
+        return self._get_response('GET', endpoint, params=params)
+
+    def get_dictionary(self, id, includes='*'):
+        endpoint = f'/v2/apis/ruler/configurations/dlp/dictionaries/{id}'
+        params = {
+            'includes': includes
+        }
+        return self._get_response('GET', endpoint, params=params)
+
+    def update_dictionary(self, id, data):
+        endpoint = f'/v2/apis/ruler/configurations/dlp/dictionaries/{id}'
+        return self._get_response('PATCH', endpoint, data=data)
+
+
+
     def get_activity(self, entities='event', data=''):
         """
         Queries activity API using export json from explortions
@@ -145,9 +162,12 @@ class ITMClient(object):
         req.headers = headers
 
         params = kwargs.get('params', {})
-        if len(params) > 0:
-            req.params = params
-        
+        try:
+            if len(params) > 0:
+                req.params = params
+        except TypeError:
+            pass
+
         if method in ['PUT', 'POST', 'PATCH']:
             data = kwargs.get('data', {})
             req.json = data
@@ -157,8 +177,9 @@ class ITMClient(object):
 
     def _get_response(self, type, endpoint, **kwargs):
         req = self._prepare_request(type, endpoint, **kwargs)
-        session = requests.Session()
-        resp = session.send(req,
+        if not hasattr(self, 'session'):
+            self.session = requests.Session()
+        resp = self.session.send(req,
             verify=self.verify
         )
         return resp.json()
