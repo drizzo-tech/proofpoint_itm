@@ -2,10 +2,13 @@ import requests
 import json
 
 class ITMClient(object):
+    """ 
+    
+    """
     def __init__(self, base_url, client_id, scope='*', verify=True, **kwargs):
         """ kwargs should contain either a username/password or a client_secret """
         self.client_id = client_id
-        self.base_url = base_url
+        self.base_url = base_url.rstrip('/')
         if kwargs.get('username') and kwargs.get('password'):
             auth = {
                 'username': kwargs.get('username'),
@@ -182,4 +185,10 @@ class ITMClient(object):
         resp = self.session.send(req,
             verify=self.verify
         )
+        self._check_response(resp)
         return resp.json()
+
+    def _check_response(self,resp):
+        if resp.status_code != 200:
+            print(resp.text)
+            exit(1)
