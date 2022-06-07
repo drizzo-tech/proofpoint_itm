@@ -31,10 +31,4 @@ try:
 except Exception as e:
     print(f'Error: {e}')
 
-#if len(instances) > 0:
-#    with open('endpoints.csv', 'w', newline='', encoding='utf-8') as csvfile:
-#        csvwriter = csv.DictWriter(csvfile, fieldnames=instances[0].keys())
-#        csvwriter.writeheader()
-#        for instance in instances:
-#            csvwriter.writerow(instance)
 
