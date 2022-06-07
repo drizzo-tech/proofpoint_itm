@@ -31,6 +31,9 @@ class ITMClient(object):
         self.access_token = self.get_token(auth)
 
     def get_token(self, auth):
+        """
+        Get Authentication token from auth endpoint
+        """
         endpoint = '/v2/apis/auth/oauth/token'
         url = self.base_url + endpoint
         payload = {
@@ -77,18 +80,35 @@ class ITMClient(object):
         
         return endpoints
 
-    def get_predicate (self, id, includes='*'):
-        endpoint = f'/v2/apis/depot/predicates/{id}'
-
+    def get_all_predicates(self, includes=''):
+        endpoint = f'/v2/apis/depot/predicates'
         params = {
             'includes': includes
         }
+        return self._get_response('GET', endpoint, params=params)
 
+    def get_predicate (self, id, includes='*'):
+        endpoint = f'/v2/apis/depot/predicates/{id}'
+        params = {
+            'includes': includes
+        }
         return self._get_response('GET', endpoint, params=params)
 
     def update_predicate(self, id, data):
         endpoint = f'/v2/apis/depot/predicates/{id}'
         return self._get_response('PUT', endpoint, data=data)
+
+    def create_predicate(self, data):
+        endpoint = f'/v2/apis/depot/predicates'
+        return self._get_response('POST', endpoint, data=data)
+
+    def get_conditions(self):
+        conditions = []
+        predicates = self.get_all_predicates(includes='*')
+        for predicate in predicates['data']:
+            if predicate['kind'] == 'it:predicate:custom:match':
+                conditions.append(predicate)
+        return conditions
 
     def get_policies(self, params=None):
         endpoint = f'/v2/apis/registry/policies'
