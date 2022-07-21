@@ -1,1 +1,1 @@
-from .proofpoint_itm import ITMClient
+from proofpoint_itm.client import ITMClient
