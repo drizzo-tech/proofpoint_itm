@@ -1,21 +1,35 @@
 from proofpoint_itm import webclient
 from proofpoint_itm.auth import itm_auth
+import uuid
 
 class ITMClient(object):
-    """ Client class for Proofpoint ITM SaaS API
+    """ Client class for Proofpoint ITM SaaS API.
         
     This class shall be initialized with a config dictionary containing the
-    following information
+    following information:
         {
-            "tenant_id" : "The tenant name"
-            "client_id" : "application client id"
-            "client_secret": "Client secret for token based auth (optional)"
+            "tenant_id" : "<The tenant name>"
+            "client_id" : "<application client id>"
+            "client_secret": "<client secret for token based auth>"
         }
     """
     
     def __init__(self, config, scope='*', verify=True, **kwargs):
-        """
-        Initialization
+        """Initialization
+
+        Initial ITMClient class object
+
+        Args:
+            config (dict): 
+                Required positional arg, contains tenant_id, client_id,
+                client_secret
+            scope (str):
+                Scope of the API requests, defaults to '*'
+            verify (bool):
+                Sets requests option to verify certificates
+
+        Returns:
+            ITMClient object
         """
         self.client_id = config['client_id']
         self.tenant_id = config['tenant_id']
@@ -30,11 +44,14 @@ class ITMClient(object):
         Fetches all endpoints of a given kind from the registry api
 
         Args:
-            includes (str): List of attributes to return, defaults to *
-            kind (str): Type of agent to return
-              Accepts *, agent:saas, or updater:saas, defaults to *
-            status (str): Filter by agent status
-              Accepts: *, HEALTHY, UNHEALTHY, UNREACHABLE, DEAD, INACTIVE
+            includes (str):
+                List of attributes to return, defaults to *
+            kind (str): 
+                Type of agent to return,
+                Accepts *, agent:saas, or updater:saas, defaults to *
+            status (str): 
+                Filter by agent status
+                Accepts: *, HEALTHY, UNHEALTHY, UNREACHABLE, DEAD, INACTIVE
 
         Returns:
             A dict of endpoint objects
@@ -50,10 +67,12 @@ class ITMClient(object):
                  }
 
         if headers is None:
-            headers = {'Authorization': f"{self.auth.token['token_type']} {self.auth.access_token}"}
+            headers = {
+                'Authorization': f"{self.auth.token['token_type']} {self.auth.access_token}"}
 
         endpoints = []
-        resp = webclient.get_request(url, headers=headers, query_params=params)
+        resp = webclient.get_request(
+                url, headers=headers, query_params=params)
         total = resp['_meta']['stats']['total']
 
         if count:
@@ -64,22 +83,30 @@ class ITMClient(object):
 
         while retrieved < total:
             params['offset'] = params['offset'] + 100
-            resp = webclient.get_request(url, headers=headers, query_params=params)
+            resp = webclient.get_request(
+                    url, headers=headers, query_params=params)
             endpoints += resp['data']
             retrieved = len(endpoints)
         
         return endpoints
-    
 
-    def get_predicates(self, id=None, includes='*', headers=None):
-        """
-        Query for all predicates or specific predicate by id in the depot API
 
-        Returns dict of predicates
+    def get_rules(self, includes='*', headers=None):
+        """Get all rules 
+
+        Query for all rules in the depot API
+
+        Args:
+            includes (str):
+                comma-separated list of attributes to include, default = *
+            headers (dict): 
+                headers to include in the http request, if not provided
+                a default header will be created with auth info
+
+        Returns: 
+            A dict of predicates
         """
-        endpoint = '/v2/apis/depot/predicates'
-        if id:
-            endpoint = endpoint + f'/{id}'
+        endpoint = '/v2/apis/ruler/rules'
         url = self.base_url + endpoint
         params = {'includes': includes}
         if headers is None:
@@ -87,6 +114,109 @@ class ITMClient(object):
         
         resp = webclient.get_request(url, headers=headers, query_params=params)
         return resp['data']
+
+
+    def get_rule(self, id, includes='*', headers=None):
+        """Get rule by ID 
+
+        Query for rule by ID in the depot API
+
+        Args:
+            id (str):
+                Rule id to return, if not provided, return all
+            includes (str):
+                comma-separated list of attributes to include, default = *
+            headers (dict): 
+                headers to include in the http request, if not provided
+                a default header will be created with auth info
+
+        Returns: 
+            A dict of predicates
+        """
+        endpoint = f'/v2/apis/ruler/rules/{id}'
+        url = self.base_url + endpoint
+        params = {'includes': includes}
+        if headers is None:
+            headers = {'Authorization': f"{self.auth.token['token_type']} {self.auth.access_token}"}
+        
+        resp = webclient.get_request(url, headers=headers, query_params=params)
+        return resp
+
+
+    def create_rule(self, rule, headers=None, test=False):
+        """Create new rule
+
+        Creates a new rule from a proofpoint_itm.classes.Rule object
+
+        Args:
+            predicate (obj): proofpoint_itm.predicate object
+
+        Returns:
+            API response text
+        """
+        if test:
+            return {'id': str(uuid.uuid4())}
+        endpoint = f'/v2/apis/ruler/rules'
+        url = self.base_url + endpoint
+        if headers is None:
+            headers = {'Authorization': f"{self.auth.token['token_type']} {self.auth.access_token}",}
+
+        data = {'data': [rule.__dict__]}
+
+        resp = webclient.post_request(url, headers=headers, json_data=data, method='POST')
+        return resp
+
+
+    def get_predicates(self, includes='*', headers=None):
+        """Get all predicates
+
+        Query for all predicates in the depot API, does not return built-in
+
+        Args:
+            includes (str): comma-separated list of attributes to include, default = *
+            headers (dict): headers to include in the http request, if not provided
+                a default header will be created with auth info
+
+        Returns: 
+            A dict of predicates
+        """
+        endpoint = '/v2/apis/depot/predicates'
+        url = self.base_url + endpoint
+        params = {'includes': includes}
+        if headers is None:
+            headers = {'Authorization': f"{self.auth.token['token_type']} {self.auth.access_token}"}
+        
+        resp = webclient.get_request(url, headers=headers, query_params=params)
+        return resp['data']
+
+
+    def get_predicate(self, id, includes='*', headers=None):
+        endpoint = f'/v2/apis/depot/predicates/{id}'
+        url = self.base_url + endpoint
+        params = {'includes': includes}
+        if headers is None:
+            headers = {'Authorization': f"{self.auth.token['token_type']} {self.auth.access_token}"}
+        
+        resp = webclient.get_request(url, headers=headers, query_params=params)
+        return resp
+
+
+    def get_predicate_list(self):
+        """Get a list of all predicates
+
+        Fetches all predicates as a list
+
+        Args:
+            includes (str): List of attributes to return, defaults to *
+            kind (str): Type of agent to return
+              Accepts *, agent:saas, or updater:saas, defaults to *
+            status (str): Filter by agent status
+              Accepts: *, HEALTHY, UNHEALTHY, UNREACHABLE, DEAD, INACTIVE
+
+        Returns:
+            A dict of endpoint objects
+        """
+        pass
 
     
     def update_predicate(self, id, data, headers=None):
@@ -96,6 +226,102 @@ class ITMClient(object):
             headers = {'Authorization': f"{self.auth.token['token_type']} {self.auth.access_token}",}
         
         resp = webclient.post_request(url, headers=headers, json_data=data, method='PATCH')
+        return resp
+
+
+    def create_predicate(self, predicate, headers=None, test=False):
+        """Create new predicate
+
+        Creates a new predicate from a proofpoint_itm.classes.Predicate object
+
+        Args:
+            predicate (obj): proofpoint_itm.predicate object
+
+        Returns:
+            API response text
+        """
+        if test:
+            return {'id': str(uuid.uuid4())}
+        endpoint = f'/v2/apis/depot/predicates'
+        url = self.base_url + endpoint
+        if headers is None:
+            headers = {'Authorization': f"{self.auth.token['token_type']} {self.auth.access_token}",}
+
+        data = {'data': [predicate.__dict__]}
+
+        resp = webclient.post_request(url, headers=headers, json_data=data, method='POST')
+        return resp
+
+
+    def get_tags(self, includes='*', headers=None):
+        """Get all tags
+
+        Query for all tags in the depot API, does not return built-in
+
+        Args:
+            includes (str): comma-separated list of attributes to include, default = *
+            headers (dict): headers to include in the http request, if not provided
+                a default header will be created with auth info
+
+        Returns: 
+            A dict of tags
+        """
+        endpoint = '/v2/apis/depot/tags'
+        url = self.base_url + endpoint
+        params = {'includes': includes}
+        if headers is None:
+            headers = {'Authorization': f"{self.auth.token['token_type']} {self.auth.access_token}"}
+        
+        resp = webclient.get_request(url, headers=headers, query_params=params)
+        return resp['data']
+
+
+    def get_tag(self, id, includes='*', headers=None):
+        """Get tag by ID
+
+        Query for specific tag ID in the depot API
+
+        Args:
+            id (str):
+                The tag ID
+            includes (str): 
+                comma-separated list of attributes to include, default = *
+            headers (dict): 
+                headers to include in the http request, if not provided
+                a default header will be created with auth info
+
+        Returns: 
+            A dict of tags info (dict)
+        """
+        endpoint = f'/v2/apis/depot/tags/{id}'
+        url = self.base_url + endpoint
+        params = {'includes': includes}
+        if headers is None:
+            headers = {'Authorization': f"{self.auth.token['token_type']} {self.auth.access_token}"}
+        
+        resp = webclient.get_request(url, headers=headers, query_params=params)
+        return resp
+
+
+    def create_tag(self, tag, headers=None, test=False):
+        """Create new tag
+
+        Creates a new tag from a proofpoint_itm.classes.Tag object
+
+        Args:
+            tag (obj): proofpoint_itm.classes.Tag object
+
+        Returns:
+            API response (dict)
+        """
+        if test:
+            return {'id': str(uuid.uuid4())}
+        endpoint = f'/v2/apis/depot/tags'
+        url = self.base_url + endpoint
+        if headers is None:
+            headers = {'Authorization': f"{self.auth.token['token_type']} {self.auth.access_token}",}
+
+        resp = webclient.post_request(url, headers=headers, json_data=tag.__dict__, method='POST')
         return resp
 
 
