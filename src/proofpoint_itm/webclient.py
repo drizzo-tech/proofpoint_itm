@@ -36,7 +36,7 @@ def post_request(url, headers=None, data=None, json_data=None, method='POST', ti
         data = urlencode(data)
         data = data.encode('utf-8')
 
-    resp = make_request(url, headers=headers, data=data, method='POST')
+    resp = make_request(url, headers=headers, data=data, method=method)
     return resp
 
 def delete_request(url, headers=None, query_params=None, timeout=10):

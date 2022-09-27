@@ -149,7 +149,13 @@ class ITMClient(object):
         Creates a new rule from a proofpoint_itm.classes.Rule object
 
         Args:
-            predicate (obj): proofpoint_itm.predicate object
+            rule (obj): 
+                proofpoint_itm.classes.Rule object
+            headers (dict): 
+                headers to include in the http request, if not provided
+                a default header will be created with auth info
+            test (bool):
+                Test flag to return fake generated uuid
 
         Returns:
             API response text
@@ -173,8 +179,10 @@ class ITMClient(object):
         Query for all predicates in the depot API, does not return built-in
 
         Args:
-            includes (str): comma-separated list of attributes to include, default = *
-            headers (dict): headers to include in the http request, if not provided
+            includes (str): 
+                comma-separated list of attributes to include, default = *
+            headers (dict): 
+                headers to include in the http request, if not provided
                 a default header will be created with auth info
 
         Returns: 
@@ -201,6 +209,32 @@ class ITMClient(object):
         return resp
 
 
+    def get_conditions(self, includes='*', headers=None):
+        """Queries for custom conditions (predicates) created by users
+
+        Query for all custom match predicates (user created) that are not auto
+        created from rules
+
+        Uses the get_predicates call, then post filters for kind = it:predicate:custom:match
+
+        Args:
+            includes (str): 
+                comma-separated list of attributes to include, default = *
+            headers (dict): 
+                headers to include in the http request, if not provided
+                a default header will be created with auth info
+
+        Returns:
+            Returns dict of conditions
+        """
+        conditions = []
+        predicates = self.get_predicates(includes=includes, headers=headers)
+        for predicate in predicates:
+            if predicate['kind'] == 'it:predicate:custom:match':
+                conditions.append(predicate)
+        return conditions
+
+
     def get_predicate_list(self):
         """Get a list of all predicates
 
@@ -219,7 +253,23 @@ class ITMClient(object):
         pass
 
     
-    def update_predicate(self, id, data, headers=None):
+    def update_predicate(self, id, data, headers=None, test=False):
+        """Update a predicate by ID
+
+        Args:
+            id (str):
+                ID of the predicate to udpate
+            data (dict)
+                A dict of the keys/values to update
+            headers (dict): 
+                headers to include in the http request, if not provided
+                a default header will be created with auth info
+            test (bool):
+                Test flag to return fake generated uuid
+
+        Returns:
+            API response (dict)
+        """
         endpoint = f'/v2/apis/depot/predicates/{id}'
         url = self.base_url + endpoint
         if headers is None:
@@ -235,10 +285,16 @@ class ITMClient(object):
         Creates a new predicate from a proofpoint_itm.classes.Predicate object
 
         Args:
-            predicate (obj): proofpoint_itm.predicate object
+            predicate (obj):
+                proofpoint_itm.classes.Predicate object
+            headers (dict): 
+                headers to include in the http request, if not provided
+                a default header will be created with auth info
+            test (bool):
+                Test flag to return fake generated uuid
 
         Returns:
-            API response text
+            API response (dict)
         """
         if test:
             return {'id': str(uuid.uuid4())}
@@ -259,8 +315,10 @@ class ITMClient(object):
         Query for all tags in the depot API, does not return built-in
 
         Args:
-            includes (str): comma-separated list of attributes to include, default = *
-            headers (dict): headers to include in the http request, if not provided
+            includes (str):
+                comma-separated list of attributes to include, default = *
+            headers (dict): 
+                headers to include in the http request, if not provided
                 a default header will be created with auth info
 
         Returns: 
@@ -309,7 +367,13 @@ class ITMClient(object):
         Creates a new tag from a proofpoint_itm.classes.Tag object
 
         Args:
-            tag (obj): proofpoint_itm.classes.Tag object
+            tag (obj):
+                proofpoint_itm.classes.Tag object
+            headers (dict): 
+                headers to include in the http request, if not provided
+                a default header will be created with auth info
+            test (bool):
+                Test flag to return fake generated uuid
 
         Returns:
             API response (dict)
@@ -325,21 +389,7 @@ class ITMClient(object):
         return resp
 
 
-    def get_conditions(self):
-        """
-        Queries for custom conditions created by users
-
-        Returns dict of conditions
-        """
-        conditions = []
-        predicates = self.get_predicates(includes='*')
-        for predicate in predicates:
-            if predicate['kind'] == 'it:predicate:custom:match':
-                conditions.append(predicate)
-        return conditions
-
-
-    def get_policies(self, includes='id,alias,kind,details', headers=None):
+    def get_agent_policies(self, includes='id,alias,kind,details', headers=None):
         endpoint = '/v2/apis/registry/policies'
         url = self.base_url + endpoint
         params = {'limit': 99, 'offset': 0, 'includes': includes}
@@ -348,7 +398,94 @@ class ITMClient(object):
         
         resp = webclient.get_request(url, headers=headers, query_params=params)
         return resp['data']
+    
+    def get_agent_policy(self):
+        pass
 
+
+    def update_agent_policy(self, id, data, headers=None, test=False):
+        """Update an Agent Policy by ID
+
+        Update an agent policy
+        
+        Args:
+            id (str):
+                ID of the policy to update
+            data (dict):
+                Values to update in dict form
+            headers (dict): 
+                headers to include in the http request, if not provided
+                a default header will be created with auth info
+            test (bool):
+                Test flag to return fake success status
+
+        Returns:
+            API response (dict)
+        """
+        if test:
+            return {'status': 200, 'msg': 'success'}
+        endpoint = f'/v2/apis/registry/policies/{id}'
+        url = self.base_url + endpoint
+        if headers is None:
+            headers = {'Authorization': f"{self.auth.token['token_type']} {self.auth.access_token}"}
+        
+        resp = webclient.post_request(url, headers=headers, json_data=data, method='PATCH')
+        return resp
+
+
+    def get_notification_policies(self, includes='*', headers=None):
+        """Get all notification policies
+
+        Query for all notification policies in the notifications API
+
+        Args:
+            includes (str):
+                comma-separated list of attributes to include, default = *
+            headers (dict): 
+                headers to include in the http request, if not provided
+                a default header will be created with auth info
+
+        Returns: 
+            A dict of tags
+        """
+        endpoint = '/v2/apis/notification/target-groups'
+        url = self.base_url + endpoint
+        params = {'includes': includes}
+        if headers is None:
+            headers = {'Authorization': f"{self.auth.token['token_type']} {self.auth.access_token}"}
+        
+        resp = webclient.get_request(url, headers=headers, query_params=params)
+        return resp['data']
+
+
+    def create_notification_policy(self, target_group, headers=None, test=False):
+        """Create new notification policy (target-group)
+
+        Creates a new notification policy from a proofpoint_itm.classes.Target-Group object
+
+        Args:
+            target_group (obj):
+                proofpoint_itm.classes.TargetGroup object
+            headers (dict): 
+                headers to include in the http request, if not provided
+                a default header will be created with auth info
+            test (bool):
+                Test flag to return fake generated uuid
+
+        Returns:
+            API response (dict)
+        """
+        if test:
+            return {'id': str(uuid.uuid4())}
+        endpoint = '/v2/apis/notification/target-groups'
+        url = self.base_url + endpoint
+        if headers is None:
+            headers = {'Authorization': f"{self.auth.token['token_type']} {self.auth.access_token}",}
+
+        data = [target_group.__dict__]
+
+        resp = webclient.post_request(url, headers=headers, json_data=data, method='POST')
+        return resp
 
     def get_dictionaries(self, id=None, headers=None, includes='*'):
         """
@@ -484,3 +621,24 @@ class ITMClient(object):
 
         resp = webclient.post_request(url, headers=headers, json_data=data, method='PATCH')
         return resp
+
+    def get_detectors(self, headers={}):
+        endpoint = '/v2/apis/ruler/configurations/dlp/detectors'
+        url = self.base_url + endpoint
+        headers['Authorization'] = f"{self.auth.token['token_type']} {self.auth.access_token}"
+        resp = webclient.get_request(url, headers=headers)
+        return resp['data']
+
+    def create_detector(self, data, headers={}):
+        endpoint = '/v2/apis/ruler/configurations/dlp/detectors'
+        url = self.base_url + endpoint
+        headers['Authorization'] = f"{self.auth.token['token_type']} {self.auth.access_token}"
+        resp = webclient.post_request(url, headers=headers, json_data=data, method='POST')
+        return resp
+
+    def get_smartids(self, headers={}):
+        endpoint = '/v2/apis/ruler/configurations/dlp/smartids'
+        url = self.base_url + endpoint
+        headers['Authorization'] = f"{self.auth.token['token_type']} {self.auth.access_token}"
+        resp = webclient.get_request(url, headers=headers)
+        return resp['data']
