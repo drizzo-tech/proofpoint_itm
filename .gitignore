@@ -133,3 +133,7 @@ dev/
 
 # OS Files
 .DS_Store
+
+# vs code
+*.code-workspace
+.vscode/
