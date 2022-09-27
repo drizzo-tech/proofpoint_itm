@@ -104,7 +104,7 @@ class ITMClient(object):
                 a default header will be created with auth info
 
         Returns: 
-            A dict of predicates
+            A dict of rules
         """
         endpoint = '/v2/apis/ruler/rules'
         url = self.base_url + endpoint
@@ -131,7 +131,7 @@ class ITMClient(object):
                 a default header will be created with auth info
 
         Returns: 
-            A dict of predicates
+            A dict of rule attributes
         """
         endpoint = f'/v2/apis/ruler/rules/{id}'
         url = self.base_url + endpoint
