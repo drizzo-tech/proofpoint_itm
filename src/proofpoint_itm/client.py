@@ -1,5 +1,6 @@
 from proofpoint_itm import webclient
 from proofpoint_itm.auth import itm_auth
+from proofpoint_itm.classes import Predicate,Rule,Tag,AgentPolicy,TargetGroup,Dictionary,Detector,DetectorSet
 import uuid
 
 class ITMClient(object):
@@ -72,7 +73,7 @@ class ITMClient(object):
 
         endpoints = []
         resp = webclient.get_request(
-                url, headers=headers, query_params=params)
+                url, headers=headers, params=params)
         total = resp['_meta']['stats']['total']
 
         if count:
@@ -84,7 +85,7 @@ class ITMClient(object):
         while retrieved < total:
             params['offset'] = params['offset'] + 100
             resp = webclient.get_request(
-                    url, headers=headers, query_params=params)
+                    url, headers=headers, params=params)
             endpoints += resp['data']
             retrieved = len(endpoints)
         
@@ -112,7 +113,7 @@ class ITMClient(object):
         if headers is None:
             headers = {'Authorization': f"{self.auth.token['token_type']} {self.auth.access_token}"}
         
-        resp = webclient.get_request(url, headers=headers, query_params=params)
+        resp = webclient.get_request(url, headers=headers, params=params)
         return resp['data']
 
 
@@ -139,11 +140,40 @@ class ITMClient(object):
         if headers is None:
             headers = {'Authorization': f"{self.auth.token['token_type']} {self.auth.access_token}"}
         
-        resp = webclient.get_request(url, headers=headers, query_params=params)
+        resp = webclient.get_request(url, headers=headers, params=params)
         return resp
 
 
-    def create_rule(self, rule, headers=None, test=False):
+    def update_rule(self, id: str, rule: Rule, headers: dict=None, test: bool=False) -> dict:
+        """Update existing rule
+
+        Updates an existing rule from a proofpoint_itm.classes.Rule object
+
+        Args:
+            id (str):
+                Rule ID to update
+            rule (obj): 
+                proofpoint_itm.classes.Rule object
+            headers (dict): 
+                headers to include in the http request, if not provided
+                a default header will be created with auth info
+            test (bool):
+                Test flag to return fake generated uuid
+
+        Returns:
+            API response text
+        """
+        if test:
+            return {'id': str(uuid.uuid4())}
+        endpoint = f'/v2/apis/ruler/rules/{id}'
+        url = self.base_url + endpoint
+        if headers is None:
+            headers = {'Authorization': f"{self.auth.token['token_type']} {self.auth.access_token}",}
+        resp = webclient.post_request(url, headers=headers, json_data=rule.as_dict(), method='PUT')
+        return resp
+
+
+    def create_rule(self, rule: Rule, headers=None, test=False):
         """Create new rule
 
         Creates a new rule from a proofpoint_itm.classes.Rule object
@@ -167,7 +197,7 @@ class ITMClient(object):
         if headers is None:
             headers = {'Authorization': f"{self.auth.token['token_type']} {self.auth.access_token}",}
 
-        data = {'data': [rule.__dict__]}
+        data = {'data': [rule.as_dict()]}
 
         resp = webclient.post_request(url, headers=headers, json_data=data, method='POST')
         return resp
@@ -194,7 +224,7 @@ class ITMClient(object):
         if headers is None:
             headers = {'Authorization': f"{self.auth.token['token_type']} {self.auth.access_token}"}
         
-        resp = webclient.get_request(url, headers=headers, query_params=params)
+        resp = webclient.get_request(url, headers=headers, params=params)
         return resp['data']
 
 
@@ -205,7 +235,7 @@ class ITMClient(object):
         if headers is None:
             headers = {'Authorization': f"{self.auth.token['token_type']} {self.auth.access_token}"}
         
-        resp = webclient.get_request(url, headers=headers, query_params=params)
+        resp = webclient.get_request(url, headers=headers, params=params)
         return resp
 
 
@@ -253,7 +283,7 @@ class ITMClient(object):
         pass
 
     
-    def update_predicate(self, id, data, headers=None, test=False):
+    def update_predicate(self, id, predicate: Predicate, headers=None, test=False):
         """Update a predicate by ID
 
         Args:
@@ -275,11 +305,11 @@ class ITMClient(object):
         if headers is None:
             headers = {'Authorization': f"{self.auth.token['token_type']} {self.auth.access_token}",}
         
-        resp = webclient.post_request(url, headers=headers, json_data=data, method='PATCH')
+        resp = webclient.post_request(url, headers=headers, json_data=predicate.as_dict(), method='PUT')
         return resp
 
 
-    def create_predicate(self, predicate, headers=None, test=False):
+    def create_predicate(self, predicate: Predicate, headers: dict=None, test: bool=False) -> dict:
         """Create new predicate
 
         Creates a new predicate from a proofpoint_itm.classes.Predicate object
@@ -303,7 +333,7 @@ class ITMClient(object):
         if headers is None:
             headers = {'Authorization': f"{self.auth.token['token_type']} {self.auth.access_token}",}
 
-        data = {'data': [predicate.__dict__]}
+        data = {'data': [predicate.as_dict()]}
 
         resp = webclient.post_request(url, headers=headers, json_data=data, method='POST')
         return resp
@@ -330,11 +360,11 @@ class ITMClient(object):
         if headers is None:
             headers = {'Authorization': f"{self.auth.token['token_type']} {self.auth.access_token}"}
         
-        resp = webclient.get_request(url, headers=headers, query_params=params)
+        resp = webclient.get_request(url, headers=headers, params=params)
         return resp['data']
 
 
-    def get_tag(self, id, includes='*', headers=None):
+    def get_tag(self, id: str, includes: str='*', headers: dict=None) -> dict:
         """Get tag by ID
 
         Query for specific tag ID in the depot API
@@ -357,11 +387,39 @@ class ITMClient(object):
         if headers is None:
             headers = {'Authorization': f"{self.auth.token['token_type']} {self.auth.access_token}"}
         
-        resp = webclient.get_request(url, headers=headers, query_params=params)
+        resp = webclient.get_request(url, headers=headers, params=params)
         return resp
 
+    def update_tag(self, id: str, tag: Tag, headers: dict=None, test: bool=False) -> dict:
+        """Update existing tag
 
-    def create_tag(self, tag, headers=None, test=False):
+        Update existing tag from a proofpoint_itm.classes.Tag object
+
+        Args:
+            id (str):
+                id of the target tag to update
+            tag (obj):
+                proofpoint_itm.classes.Tag object
+            headers (dict): 
+                headers to include in the http request, if not provided
+                a default header will be created with auth info
+            test (bool):
+                Test flag to return fake generated uuid
+
+        Returns:
+            API response (dict)
+        """
+        if test:
+            return {'id': str(uuid.uuid4())}
+        endpoint = f'/v2/apis/depot/tags/{id}'
+        url = self.base_url + endpoint
+        if headers is None:
+            headers = {'Authorization': f"{self.auth.token['token_type']} {self.auth.access_token}",}
+
+        resp = webclient.post_request(url, headers=headers, json_data=tag.as_dict(), method='PATCH')
+        return resp
+
+    def create_tag(self, tag: Tag, headers: dict=None, test: bool=False) -> dict:
         """Create new tag
 
         Creates a new tag from a proofpoint_itm.classes.Tag object
@@ -385,25 +443,35 @@ class ITMClient(object):
         if headers is None:
             headers = {'Authorization': f"{self.auth.token['token_type']} {self.auth.access_token}",}
 
-        resp = webclient.post_request(url, headers=headers, json_data=tag.__dict__, method='POST')
+        resp = webclient.post_request(url, headers=headers, json_data=tag.as_dict(), method='POST')
         return resp
 
 
-    def get_agent_policies(self, includes='id,alias,kind,details', headers=None):
+    def get_agent_policies(self, includes: str='*', headers: dict=None, params: dict=None) -> dict:
         endpoint = '/v2/apis/registry/policies'
         url = self.base_url + endpoint
-        params = {'limit': 99, 'offset': 0, 'includes': includes}
+        if params is None:
+            params = {'limit': 99, 'offset': 0, 'includes': includes}
         if headers is None:
             headers = {'Authorization': f"{self.auth.token['token_type']} {self.auth.access_token}"}
         
-        resp = webclient.get_request(url, headers=headers, query_params=params)
+        resp = webclient.get_request(url, headers=headers, params=params)
         return resp['data']
-    
-    def get_agent_policy(self):
-        pass
 
 
-    def update_agent_policy(self, id, data, headers=None, test=False):
+    def get_agent_policy(self, id: str, includes: str='*', headers: dict=None, params: dict=None) -> dict:
+        endpoint = f'/v2/apis/registry/policies/{id}'
+        url = self.base_url + endpoint
+        if params is None:
+            params = {'limit': 99, 'offset': 0, 'includes': includes}
+        if headers is None:
+            headers = {'Authorization': f"{self.auth.token['token_type']} {self.auth.access_token}"}
+        
+        resp = webclient.get_request(url, headers=headers, params=params)
+        return resp['data']
+
+
+    def update_agent_policy(self, id, policy: AgentPolicy, headers: dict=None, test: bool=False) -> dict:
         """Update an Agent Policy by ID
 
         Update an agent policy
@@ -411,8 +479,8 @@ class ITMClient(object):
         Args:
             id (str):
                 ID of the policy to update
-            data (dict):
-                Values to update in dict form
+            policy (AgentPolicy):
+                A proofpoint_itm.classes.AgentPolicy object
             headers (dict): 
                 headers to include in the http request, if not provided
                 a default header will be created with auth info
@@ -429,7 +497,34 @@ class ITMClient(object):
         if headers is None:
             headers = {'Authorization': f"{self.auth.token['token_type']} {self.auth.access_token}"}
         
-        resp = webclient.post_request(url, headers=headers, json_data=data, method='PATCH')
+        resp = webclient.post_request(url, headers=headers, json_data=policy.as_dict(), method='PUT')
+        return resp
+
+    def create_agent_policy(self, policy: AgentPolicy, headers: dict=None, test: bool=False) -> dict:
+        """Create an Agent Policy
+
+        Create an new agent policy from a proofpoint_itm.classes.AgentPolicy object
+        
+        Args:
+            policy (AgentPolicy):
+                A proofpoint_itm.classes.AgentPolicy object to create
+            headers (dict): 
+                headers to include in the http request, if not provided
+                a default header will be created with auth info
+            test (bool):
+                Test flag to return fake success status
+
+        Returns:
+            API response (dict)
+        """
+        if test:
+            return {'status': 200, 'msg': 'success'}
+        endpoint = f'/v2/apis/registry/policies'
+        url = self.base_url + endpoint
+        if headers is None:
+            headers = {'Authorization': f"{self.auth.token['token_type']} {self.auth.access_token}"}
+        
+        resp = webclient.post_request(url, headers=headers, json_data=policy.as_dict(), method='POST')
         return resp
 
 
@@ -454,14 +549,44 @@ class ITMClient(object):
         if headers is None:
             headers = {'Authorization': f"{self.auth.token['token_type']} {self.auth.access_token}"}
         
-        resp = webclient.get_request(url, headers=headers, query_params=params)
+        resp = webclient.get_request(url, headers=headers, params=params)
         return resp['data']
 
 
-    def create_notification_policy(self, target_group, headers=None, test=False):
+    def update_notification_policy(self, id: str, target_group: TargetGroup, headers: dict=None, test: bool=False) -> dict:
+        """Update existing notification policy (target-group)
+
+        Updates an existing notification policy from a proofpoint_itm.classes.TargetGroup object
+
+        Args:
+            id (str)
+                The target-group ID to update
+            target_group (obj):
+                proofpoint_itm.classes.TargetGroup object
+            headers (dict): 
+                headers to include in the http request, if not provided
+                a default header will be created with auth info
+            test (bool):
+                Test flag to return fake generated uuid
+
+        Returns:
+            API response (dict)
+        """
+        if test:
+            return {'id': str(uuid.uuid4())}
+        endpoint = f'/v2/apis/notification/target-groups/{id}'
+        url = self.base_url + endpoint
+        if headers is None:
+            headers = {'Authorization': f"{self.auth.token['token_type']} {self.auth.access_token}",}
+
+        resp = webclient.post_request(url, headers=headers, json_data=target_group.as_dict(), method='PATCH')
+        return resp
+
+
+    def create_notification_policy(self, target_group: TargetGroup, headers: dict=None, test: bool=False) -> dict:
         """Create new notification policy (target-group)
 
-        Creates a new notification policy from a proofpoint_itm.classes.Target-Group object
+        Creates a new notification policy from a proofpoint_itm.classes.TargetGroup object
 
         Args:
             target_group (obj):
@@ -482,30 +607,46 @@ class ITMClient(object):
         if headers is None:
             headers = {'Authorization': f"{self.auth.token['token_type']} {self.auth.access_token}",}
 
-        data = [target_group.__dict__]
+        data = [target_group.as_dict()]
 
         resp = webclient.post_request(url, headers=headers, json_data=data, method='POST')
         return resp
 
-    def get_dictionaries(self, id=None, headers=None, includes='*'):
+    def get_dictionaries(self, headers: dict=None, includes: str='*') -> dict:
         """
         Queries for user defined dictionaries
 
         Returns dict of dictionaries
         """
         endpoint = '/v2/apis/ruler/configurations/dlp/dictionaries'
-        if id:
-            endpoint = endpoint + f'/{id}'
         url = self.base_url + endpoint
         params = {'includes': includes}
         if headers is None:
             headers = {'Authorization': f"{self.auth.token['token_type']} {self.auth.access_token}"}
         
-        resp = webclient.get_request(url, headers=headers, query_params=params)
+        resp = webclient.get_request(url, headers=headers, params=params)
         return resp['data']
 
 
-    def get_dictionary_terms(self, id, headers=None, includes='*'):
+    def get_dictionary(self, id: str, headers: dict=None, include: str=None) -> dict:
+        """
+        Queries for user defined dictionaries
+
+        Returns json as dict
+        """
+        endpoint = f'/v2/apis/ruler/configurations/dlp/dictionaries/{id}'
+        url = self.base_url + endpoint
+        params = {}
+        if include is not None:
+            params['include'] = include
+        if headers is None:
+            headers = {'Authorization': f"{self.auth.token['token_type']} {self.auth.access_token}"}
+        
+        resp = webclient.get_request(url, headers=headers, params=params)
+        return resp
+
+
+    def get_dictionary_terms(self, id: str, headers: dict=None, includes: str='*') -> dict:
         """
         Queries for entries/terms in specific user defined dictionary
 
@@ -517,70 +658,84 @@ class ITMClient(object):
         if headers is None:
             headers = {'Authorization': f"{self.auth.token['token_type']} {self.auth.access_token}"}
         
-        resp = webclient.get_request(url, headers=headers, query_params=params)
+        resp = webclient.get_request(url, headers=headers, params=params)
         return resp['data']
     
 
-    def update_dictionary(self, id, data, headers=None):
-        """
+    def update_dictionary(self, id: str, dictionary: Dictionary, headers: dict=None) -> dict:
+        """Update existing dictionary
+
         Updates an existing user defined dictionary by ID
 
-        id = dictionary ID
-        data = dict representing a dictionary
+        Args:
+            id (str):
+                dictionary ID
+            dictionary (Dictionary):
+                A proofpoint_itm.classes.Dictionary object
+            headers (dict):
+                headers to include in the http request, if not provided
+                a default header will be created with auth info
 
-        example:
-        {
-            "name": "dictionary 1",
-            "description": "dictionary 1 description",
-            "entries": [
-                {
-                    "term": "term1",
-                    "type": "CaseSensitive",
-                    "weight": 5,
-                    "count": 1
-                }
-            ]
-        } 
+        Returns:
+            API Response as dict
         """
         endpoint = f'/v2/apis/ruler/configurations/dlp/dictionaries/{id}'
         url = self.base_url + endpoint
         if headers is None:
             headers = {'Authorization': f"{self.auth.token['token_type']} {self.auth.access_token}",}
         
-        resp = webclient.post_request(url, headers=headers, json_data=data, method='PATCH')
+        resp = webclient.post_request(url, headers=headers, json_data=dictionary.as_dict(), method='PATCH')
         return resp
 
 
-    def create_dictionary(self, data, headers=None):
-        """
+    def create_dictionary(self, dictionary: Dictionary, headers: dict=None) -> dict:
+        """Create new dictionary
+        
         Creates a new user defined dictionary
 
-        data = dict representing a dictionary
+        Args:
+            dictionary (Dictionary):
+                A proofpoint_itm.classes.Dictionary object
+            headers (dict):
+                Headers to include in the http request, if not provided
+                a default header will be created with auth info
 
-        example:
-        {
-            "name": "dictionary 1",
-            "description": "dictionary 1 description",
-            "entries": [
-                {
-                    "term": "term1",
-                    "type": "CaseSensitive",
-                    "weight": 5,
-                    "count": 1
-                }
-            ]
-        } 
+        Returns:
+            API response as dict
         """
         endpoint = '/v2/apis/ruler/configurations/dlp/dictionaries'
         url = self.base_url + endpoint
         if headers is None:
             headers = {'Authorization': f"{self.auth.token['token_type']} {self.auth.access_token}"}
         
-        resp = webclient.post_request(url, headers=headers, json_data=data, method='POST')
+        resp = webclient.post_request(url, headers=headers, json_data=dictionary.as_dict(), method='POST')
+        return resp
+
+    def create_dictionaries(self, dictionaries: list=[], headers: dict=None):
+        """
+        Creates or updates a batch list of dictionaries
+
+        Args:
+            dictionaries (list):
+                A list of proofpoint_itm.classes.Dictionary objects
+            headers (dict):
+                headers to include in the http request, if not provided
+                a default header will be created with auth info
+
+        Returns:
+            webclient response
+        """
+        endpoint = '/v2/apis/ruler/configurations/dlp/dictionaries'
+        url = self.base_url + endpoint
+        if headers is None:
+            headers = {'Authorization': f"{self.auth.token['token_type']} {self.auth.access_token}"}
+        dictionary_list = [d.as_dict() for d in dictionaries]
+        data = { 'data': dictionary_list }
+        resp = webclient.post_request(url, headers=headers, json_data=data, method='PATCH')
         return resp
 
 
-    def delete_dictionary(self, id, headers=None):
+    def delete_dictionary(self, id: str, headers: dict=None) -> dict:
         """
         Deletes a dictionary by ID
 
@@ -595,12 +750,14 @@ class ITMClient(object):
         return resp
 
 
-    def update_event_workflow(self, fqid, status, headers=None):
+    def update_event_workflow(self, fqid: str, status: str, headers: dict={}):
         """Update workflow status of an alert/incident
         
         Args:
-            fqid (str): The fqid of an event/incident
-            status (str): The new status to be applied to the incident
+            fqid (str):
+                The fqid of an event/incident
+            status (str):
+                The new status to be applied to the incident
                 Accepts new, reopened, in-progress, escalated, on-hold,
                         resolved, false-positive, not-an-issue
 
@@ -622,23 +779,157 @@ class ITMClient(object):
         resp = webclient.post_request(url, headers=headers, json_data=data, method='PATCH')
         return resp
 
-    def get_detectors(self, headers={}):
+
+    def get_detectors(self, headers: dict={}) -> dict:
         endpoint = '/v2/apis/ruler/configurations/dlp/detectors'
         url = self.base_url + endpoint
         headers['Authorization'] = f"{self.auth.token['token_type']} {self.auth.access_token}"
         resp = webclient.get_request(url, headers=headers)
         return resp['data']
 
-    def create_detector(self, data, headers={}):
+    def get_detector(self, id: str, headers: dict={}) -> dict:
+        endpoint = f'/v2/apis/ruler/configurations/dlp/detectors/{id}'
+        url = self.base_url + endpoint
+        headers['Authorization'] = f"{self.auth.token['token_type']} {self.auth.access_token}"
+        resp = webclient.get_request(url, headers=headers)
+        return resp
+
+    def update_detector(self, id: str, detector: Detector, headers: dict={}):
+        endpoint = f'/v2/apis/ruler/configurations/dlp/detectors/{id}'
+        url = self.base_url + endpoint
+        headers['Authorization'] = f"{self.auth.token['token_type']} {self.auth.access_token}"
+        resp = webclient.post_request(url, headers=headers, json_data=detector.as_dict(), method='PATCH')
+        return resp
+
+    def create_detector(self, detector: Detector, headers: dict={}):
         endpoint = '/v2/apis/ruler/configurations/dlp/detectors'
         url = self.base_url + endpoint
         headers['Authorization'] = f"{self.auth.token['token_type']} {self.auth.access_token}"
-        resp = webclient.post_request(url, headers=headers, json_data=data, method='POST')
+        resp = webclient.post_request(url, headers=headers, json_data=detector.as_dict(), method='POST')
         return resp
 
-    def get_smartids(self, headers={}):
+    def get_detector_sets(self, headers: dict={}) -> dict:
+        endpoint = '/v2/apis/ruler/configurations/dlp/detectorsets'
+        url = self.base_url + endpoint
+        headers['Authorization'] = f"{self.auth.token['token_type']} {self.auth.access_token}"
+        resp = webclient.get_request(url, headers=headers)
+        return resp['data']
+
+    def get_detector_set(self, id: str, headers: dict={}) -> dict:
+        endpoint = f'/v2/apis/ruler/configurations/dlp/detectorsets/{id}'
+        url = self.base_url + endpoint
+        headers['Authorization'] = f"{self.auth.token['token_type']} {self.auth.access_token}"
+        resp = webclient.get_request(url, headers=headers)
+        return resp
+
+    def update_detector_set(self, id: str, detector_set: DetectorSet, headers: dict={}):
+        endpoint = f'/v2/apis/ruler/configurations/dlp/detectorsets/{id}'
+        url = self.base_url + endpoint
+        headers['Authorization'] = f"{self.auth.token['token_type']} {self.auth.access_token}"
+        resp = webclient.post_request(url, headers=headers, json_data=detector_set.as_dict(), method='PATCH')
+        return resp
+
+    def create_detector_set(self, detector_set: DetectorSet, headers: dict={}):
+        endpoint = '/v2/apis/ruler/configurations/dlp/detectorsets'
+        url = self.base_url + endpoint
+        headers['Authorization'] = f"{self.auth.token['token_type']} {self.auth.access_token}"
+        resp = webclient.post_request(url, headers=headers, json_data=detector_set.as_dict(), method='POST')
+        return resp
+    
+    def delete_detector_set(self, id: str, headers: dict={}):
+        endpoint = f'/v2/apis/ruler/configurations/dlp/detectorsets/{id}'
+        url = self.base_url + endpoint
+        headers['Authorization'] = f"{self.auth.token['token_type']} {self.auth.access_token}"
+        resp = webclient.delete_request(url, headers=headers)
+        return resp
+
+    def get_smartids(self, headers: dict={}) -> dict:
         endpoint = '/v2/apis/ruler/configurations/dlp/smartids'
         url = self.base_url + endpoint
         headers['Authorization'] = f"{self.auth.token['token_type']} {self.auth.access_token}"
         resp = webclient.get_request(url, headers=headers)
+        return resp['data']
+
+    def depot_search(self, query: str, entity: str, params: dict={}, headers: dict={}) -> dict:
+        """
+        Performs a search query against the depot API
+
+        Args:
+            query (dict):
+                A dict representing an Elastic Search query, will be converted to json string
+            entity (str):
+                entityTypes to search for
+                Accepted values: list, predicate, tag, article
+            params (dict):
+                A dict of web request url parameters
+                ex. offset = 0, limit=500
+            headers (dict):
+                Headers to include in the http request, if not provided
+                a default header will be created with auth info
+
+        Returns:
+            dict of returned objects
+
+        """
+        endpoint = '/v2/apis/depot/queries'
+        url = self.base_url + endpoint
+        params['entityTypes'] = entity
+        headers['Authorization'] = f"{self.auth.token['token_type']} {self.auth.access_token}"
+        resp = webclient.post_request(url, headers=headers, json_data=query, method='POST', params=params)
+        return resp['data']
+
+    def notification_search(self, query: dict, entity: str, params: dict={}, headers: dict={}) -> dict:
+        """
+        Performs a search query against the depot API
+
+        Args:
+            query (dict):
+                A dict representing an Elastic Search query, will be converted to json string
+            entity (str):
+                entityTypes to search for
+                Accepted values: target-group, notification
+            params (dict):
+                A dict of web request url parameters
+                ex. offset = 0, limit=500
+            headers (dict):
+                Headers to include in the http request, if not provided
+                a default header will be created with auth info
+
+        Returns:
+            dict of returned objects
+
+        """
+        endpoint = '/v2/apis/notification/queries'
+        url = self.base_url + endpoint
+        params['entityTypes'] = entity
+        headers['Authorization'] = f"{self.auth.token['token_type']} {self.auth.access_token}"
+        resp = webclient.post_request(url, headers=headers, json_data=query, method='POST', params=params)
+        return resp['data']
+
+    def ruler_search(self, query: str, entity: str, params: dict={}, headers: dict={}) -> dict:
+        """
+        Performs a search query against the ruler API
+
+        Args:
+            query (dict):
+                A dict representing an Elastic Search query, will be converted to json string
+            entity (str):
+                entityTypes to search for
+                Accepted values: artifact, rule, rulechain
+            params (dict):
+                A dict of web request url parameters
+                ex. offset = 0, limit=500
+            headers (dict):
+                Headers to include in the http request, if not provided
+                a default header will be created with auth info
+
+        Returns:
+            dict of returned objects
+
+        """
+        endpoint = '/v2/apis/ruler/queries'
+        url = self.base_url + endpoint
+        params['entityTypes'] = entity
+        headers['Authorization'] = f"{self.auth.token['token_type']} {self.auth.access_token}"
+        resp = webclient.post_request(url, headers=headers, json_data=query, method='POST', params=params)
         return resp['data']
