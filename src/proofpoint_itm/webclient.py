@@ -3,23 +3,23 @@ from urllib.request import urlopen, Request
 from urllib.parse import urlencode
 import json
 
-def get_request(url, headers=None, query_params=None, timeout=10):
+def get_request(url, headers=None, params=None, timeout=10):
     """
     Performs a get request
-    query_params = dictionary of parameters to be added to the end of url
+    params = dictionary of parameters to be added to the end of url
     headers = dictionary of headers to include in the request
 
     Returns response as dict
     """
-    if query_params:
-        url_params = urlencode(query_params)
+    if params:
+        url_params = urlencode(params)
         url = url + '?' + url_params
 
     resp = make_request(url, headers=headers, method='GET')
     return resp
 
 
-def post_request(url, headers=None, data=None, json_data=None, method='POST', timeout=10):
+def post_request(url, headers=None, data=None, json_data=None, method='POST', params={}, timeout=10):
     """
     perform a post request
     pass headers/data as standard python dictionary
@@ -28,6 +28,10 @@ def post_request(url, headers=None, data=None, json_data=None, method='POST', ti
 
     Returns response as dict
     """
+    if params:
+        url_params = urlencode(params)
+        url = url + '?' + url_params
+
     if json_data:
         headers['Content-Type'] = 'application/json; charset=utf-8'
         data = json.dumps(json_data)
@@ -39,16 +43,16 @@ def post_request(url, headers=None, data=None, json_data=None, method='POST', ti
     resp = make_request(url, headers=headers, data=data, method=method)
     return resp
 
-def delete_request(url, headers=None, query_params=None, timeout=10):
+def delete_request(url, headers=None, params=None, timeout=10):
     """
     Performs a delete request
-    query_params = dictionary of parameters to be added to the end of url
+    params = dictionary of parameters to be added to the end of url
     headers = dictionary of headers to include in the request
 
     Returns response as dict
     """
-    if query_params:
-        url_params = urlencode(query_params)
+    if params:
+        url_params = urlencode(params)
         url = url + '?' + url_params
 
     resp = make_request(url, headers=headers, method='DELETE')
