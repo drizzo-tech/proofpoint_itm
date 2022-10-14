@@ -13,10 +13,7 @@ args = parser.parse_args()
 with open(args.settings, 'r') as f:
     settings = json.loads(f.read())
 
-itm_client = ITMClient(
-    settings['ITM']['base_url'],
-    settings['ITM']['client_id'],
-    client_secret=settings['ITM']['client_secret'])
+itm_client = ITMClient(settings)
 
 with open(args.query, 'r') as f:
     query = json.loads(f.read())
