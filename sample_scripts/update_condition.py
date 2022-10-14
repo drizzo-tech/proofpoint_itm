@@ -63,5 +63,5 @@ predicate.patterns = patterns
 
 resp = itm_client.update_predicate(target_predicate[0]['id'], predicate)
 
-if resp['_status'] == '200':
+if resp['_status']['status'] == '200':
     print('Condition successfully updated')
