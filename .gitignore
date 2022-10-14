@@ -137,3 +137,6 @@ dev/
 # vs code
 *.code-workspace
 .vscode/
+
+# log files used for dev stuff
+*.log
