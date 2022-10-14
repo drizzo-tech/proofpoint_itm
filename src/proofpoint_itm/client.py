@@ -38,8 +38,8 @@ class ITMClient(object):
         self.auth = itm_auth(config, verify=verify, scope=scope)
 
     
-    def get_endpoints(self, includes='*', kind='*', status='*',
-                      headers=None, count=False):
+    def get_endpoints(self, includes: str='*', kind: str='*', status: str='*',
+                      headers: dict=None, count: bool=False) -> dict:
         """Gets endpoints from the registry API
 
         Fetches all endpoints of a given kind from the registry api
@@ -55,7 +55,7 @@ class ITMClient(object):
                 Accepts: *, HEALTHY, UNHEALTHY, UNREACHABLE, DEAD, INACTIVE
 
         Returns:
-            A dict of endpoint objects
+            A list of endpoint objects
         """
         endpoint = '/v2/apis/registry/instances'
         url = self.base_url + endpoint
@@ -92,7 +92,7 @@ class ITMClient(object):
         return endpoints
 
 
-    def get_rules(self, includes='*', headers=None):
+    def get_rules(self, includes: str='*', headers: dict=None) -> list:
         """Get all rules 
 
         Query for all rules in the depot API
@@ -105,7 +105,7 @@ class ITMClient(object):
                 a default header will be created with auth info
 
         Returns: 
-            A dict of rules
+            A list of rules objects
         """
         endpoint = '/v2/apis/ruler/rules'
         url = self.base_url + endpoint
@@ -117,7 +117,7 @@ class ITMClient(object):
         return resp['data']
 
 
-    def get_rule(self, id, includes='*', headers=None):
+    def get_rule(self, id: str, includes: str='*', headers: dict=None) -> dict:
         """Get rule by ID 
 
         Query for rule by ID in the depot API
@@ -203,20 +203,20 @@ class ITMClient(object):
         return resp
 
 
-    def get_predicates(self, includes='*', headers=None):
+    def get_predicates(self, includes: str='*', headers: dict=None) -> list:
         """Get all predicates
 
         Query for all predicates in the depot API, does not return built-in
 
         Args:
             includes (str): 
-                comma-separated list of attributes to include, default = *
+                Comma-separated list of attributes to include, default = *
             headers (dict): 
                 headers to include in the http request, if not provided
                 a default header will be created with auth info
 
         Returns: 
-            A dict of predicates
+            A list of predicate objects
         """
         endpoint = '/v2/apis/depot/predicates'
         url = self.base_url + endpoint
@@ -228,7 +228,23 @@ class ITMClient(object):
         return resp['data']
 
 
-    def get_predicate(self, id, includes='*', headers=None):
+    def get_predicate(self, id: str, includes: str='*', headers: dict=None) -> dict:
+        """Query for a single predicate
+
+        Query for a single predicate by ID
+
+        Args:
+            id (str):
+                The predicate id to return
+            includes (str): 
+                Comma-separated list of attributes to include, default = *
+            headers (dict): 
+                headers to include in the http request, if not provided
+                a default header will be created with auth info
+
+        Returns:
+            A dict of predicate attributes
+        """
         endpoint = f'/v2/apis/depot/predicates/{id}'
         url = self.base_url + endpoint
         params = {'includes': includes}
@@ -239,7 +255,7 @@ class ITMClient(object):
         return resp
 
 
-    def get_conditions(self, includes='*', headers=None):
+    def get_conditions(self, includes: str='*', headers: dict=None) -> list:
         """Queries for custom conditions (predicates) created by users
 
         Query for all custom match predicates (user created) that are not auto
@@ -255,7 +271,7 @@ class ITMClient(object):
                 a default header will be created with auth info
 
         Returns:
-            Returns dict of conditions
+            Returns list of predicate objects
         """
         conditions = []
         predicates = self.get_predicates(includes=includes, headers=headers)
@@ -263,24 +279,6 @@ class ITMClient(object):
             if predicate['kind'] == 'it:predicate:custom:match':
                 conditions.append(predicate)
         return conditions
-
-
-    def get_predicate_list(self):
-        """Get a list of all predicates
-
-        Fetches all predicates as a list
-
-        Args:
-            includes (str): List of attributes to return, defaults to *
-            kind (str): Type of agent to return
-              Accepts *, agent:saas, or updater:saas, defaults to *
-            status (str): Filter by agent status
-              Accepts: *, HEALTHY, UNHEALTHY, UNREACHABLE, DEAD, INACTIVE
-
-        Returns:
-            A dict of endpoint objects
-        """
-        pass
 
     
     def update_predicate(self, id, predicate: Predicate, headers=None, test=False):
@@ -339,7 +337,7 @@ class ITMClient(object):
         return resp
 
 
-    def get_tags(self, includes='*', headers=None):
+    def get_tags(self, includes: str='*', headers: dict=None) -> list:
         """Get all tags
 
         Query for all tags in the depot API, does not return built-in
@@ -352,7 +350,7 @@ class ITMClient(object):
                 a default header will be created with auth info
 
         Returns: 
-            A dict of tags
+            A list of tags objects
         """
         endpoint = '/v2/apis/depot/tags'
         url = self.base_url + endpoint
@@ -643,7 +641,7 @@ class ITMClient(object):
             headers = {'Authorization': f"{self.auth.token['token_type']} {self.auth.access_token}"}
         
         resp = webclient.get_request(url, headers=headers, params=params)
-        return resp
+        return resp['data']
 
 
     def get_dictionary_terms(self, id: str, headers: dict=None, includes: str='*') -> dict:
