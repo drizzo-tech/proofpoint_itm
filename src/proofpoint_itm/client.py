@@ -931,3 +931,31 @@ class ITMClient(object):
         headers['Authorization'] = f"{self.auth.token['token_type']} {self.auth.access_token}"
         resp = webclient.post_request(url, headers=headers, json_data=query, method='POST', params=params)
         return resp['data']
+
+    def activity_search(self, query: str, entity: str, params: dict={}, headers: dict={}) -> dict:
+        """
+        Performs a search query against the activity API
+
+        Args:
+            query (dict):
+                A dict representing an Elastic Search query, will be converted to json string
+            entity (str):
+                entityTypes to search for
+                Accepted values: event, casbevent, audit, network
+            params (dict):
+                A dict of web request url parameters
+                ex. offset = 0, limit=500
+            headers (dict):
+                Headers to include in the http request, if not provided
+                a default header will be created with auth info
+
+        Returns:
+            dict of returned objects
+
+        """
+        endpoint = '/v2/apis/activity/queries'
+        url = self.base_url + endpoint
+        params['entityTypes'] = entity
+        headers['Authorization'] = f"{self.auth.token['token_type']} {self.auth.access_token}"
+        resp = webclient.post_request(url, headers=headers, json_data=query, method='POST', params=params)
+        return resp['data']
