@@ -15,18 +15,24 @@ with open(args.settings, 'r') as f:
 
 itm_client = ITMClient(settings)
 
+
+# In this example, the query file is the query json exported from that UAM console
+# after running an exploration
 with open(args.query, 'r') as f:
     query = json.loads(f.read())
 
-events = itm_client.get_activity(data=query)
+events = itm_client.activity_search(query, 'event')
 
-if args.outfile:
-    fname, fext = os.path.splitext(args.outfile)
-    if fext == '.csv':
-        df = pd.DataFrame.from_dict(events)
-        df.to_csv(args.outfile, index=False, header=True)
+if len(events) > 0:
+    if args.outfile:
+        fname, fext = os.path.splitext(args.outfile)
+        if fext == '.csv':
+            df = pd.DataFrame.from_dict(events)
+            df.to_csv(args.outfile, index=False, header=True)
+        else:
+            with open(args.outfile, 'w') as out:
+                out.write(json.dumps(events, indent=4))
     else:
-        with open(args.outfile, 'w') as out:
-            out.write(json.dumps(events, indent=4))
+        print(json.dumps(events, indent=4))
 else:
-    print(json.dumps(events, indent=4))
+    print('No events returned from activity search')
