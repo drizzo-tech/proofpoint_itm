@@ -495,6 +495,35 @@ class ITMClient(object):
         if headers is None:
             headers = {'Authorization': f"{self.auth.token['token_type']} {self.auth.access_token}"}
         
+        resp = webclient.post_request(url, headers=headers, json_data=policy.as_dict(), method='PATCH')
+        return resp
+
+    def overwrite_agent_policy(self, id, policy: AgentPolicy, headers: dict=None, test: bool=False) -> dict:
+        """Overwrite an Agent Policy by ID
+
+        Overwrite an agent policy
+        
+        Args:
+            id (str):
+                ID of the policy to update
+            policy (AgentPolicy):
+                A proofpoint_itm.classes.AgentPolicy object
+            headers (dict): 
+                headers to include in the http request, if not provided
+                a default header will be created with auth info
+            test (bool):
+                Test flag to return fake success status
+
+        Returns:
+            API response (dict)
+        """
+        if test:
+            return {'status': 200, 'msg': 'success'}
+        endpoint = f'/v2/apis/registry/policies/{id}'
+        url = self.base_url + endpoint
+        if headers is None:
+            headers = {'Authorization': f"{self.auth.token['token_type']} {self.auth.access_token}"}
+        
         resp = webclient.post_request(url, headers=headers, json_data=policy.as_dict(), method='PUT')
         return resp
 
