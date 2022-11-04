@@ -65,3 +65,9 @@ resp = itm_client.update_predicate(target_predicate[0]['id'], predicate)
 
 if resp['_status']['status'] == '200':
     print('Condition successfully updated')
+
+try:
+    publish_resp = itm_client.publish_config()
+except Exception as e:
+    # handle exception here, sleep 60 sec, try again, etc
+    print(f'Caught exception: {e}')

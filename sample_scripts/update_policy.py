@@ -50,3 +50,9 @@ resp = itm_client.update_agent_policy(target_policy_id, agentpolicy)
 if resp['_status']['status'] == '200':
     print('Updated AgentPolicy successfully')
 
+try:
+    publish_resp = itm_client.publish_config()
+except Exception as e:
+    # handle exception here, sleep 60 sec, try again, etc
+    print(f'Caught exception: {e}')
+
