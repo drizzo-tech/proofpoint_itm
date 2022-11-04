@@ -36,7 +36,7 @@ def post_request(url, headers=None, data=None, json_data=None, method='POST', pa
         headers['Content-Type'] = 'application/json; charset=utf-8'
         data = json.dumps(json_data)
         data = data.encode('utf-8')
-    else:
+    elif data:
         data = urlencode(data)
         data = data.encode('utf-8')
 
