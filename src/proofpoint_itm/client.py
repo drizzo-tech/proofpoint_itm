@@ -877,6 +877,13 @@ class ITMClient(object):
         resp = webclient.get_request(url, headers=headers)
         return resp['data']
 
+    def publish_config(self, headers: dict={}, artifactID: str='activity', data: dict={}) -> dict:
+        endpoint = f'/v2/apis/ruler/artifacts/{artifactID}'
+        url = self.base_url + endpoint
+        headers['Authorization'] = f"{self.auth.token['token_type']} {self.auth.access_token}"
+        resp = webclient.post_request(url, headers=headers, method='PUT', json_data=data)
+        return resp
+
     def depot_search(self, query: str, entity: str, params: dict={}, headers: dict={}) -> dict:
         """
         Performs a search query against the depot API
