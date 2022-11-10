@@ -18,13 +18,10 @@ with open('settings.json', 'r') as f:
     settings = json.loads(f.read())
 
 
-itm_client = ITMClient(
-    settings['ITM']['base_url'],
-    settings['ITM']['client_id'],
-    client_secret=settings['ITM']['client_secret'])
+itm_client = ITMClient(settings)
 
 attrs = '*'
-instances = itm_client.get_all_instances(includes=attrs)
+instances = itm_client.get_endpoints(includes=attrs)
 
 try:
     print(json.dumps(instances, indent=4))
