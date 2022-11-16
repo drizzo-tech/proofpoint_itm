@@ -968,7 +968,7 @@ class ITMClient(object):
         resp = webclient.post_request(url, headers=headers, json_data=query, method='POST', params=params)
         return resp['data']
 
-    def activity_search(self, query: str, entity: str, params: dict={}, headers: dict={}) -> dict:
+    def activity_search(self, query: dict, entity: str, params: dict={}, headers: dict={}) -> dict:
         """
         Performs a search query against the activity API
 
