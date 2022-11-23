@@ -850,7 +850,7 @@ class ITMClient(object):
         params['entityTypes'] = entity
         headers['Authorization'] = f"{self.auth.token['token_type']} {self.auth.access_token}"
         resp = webclient.post_request(url, headers=headers, json_data=query, method='POST', params=params)
-        return resp['data']
+        return resp
 
     def notification_search(self, query: dict, entity: str, params: dict={}, headers: dict={}) -> dict:
         """
@@ -878,7 +878,7 @@ class ITMClient(object):
         params['entityTypes'] = entity
         headers['Authorization'] = f"{self.auth.token['token_type']} {self.auth.access_token}"
         resp = webclient.post_request(url, headers=headers, json_data=query, method='POST', params=params)
-        return resp['data']
+        return resp
 
     def ruler_search(self, query: str, entity: str, params: dict={}, headers: dict={}) -> dict:
         """
@@ -906,7 +906,7 @@ class ITMClient(object):
         params['entityTypes'] = entity
         headers['Authorization'] = f"{self.auth.token['token_type']} {self.auth.access_token}"
         resp = webclient.post_request(url, headers=headers, json_data=query, method='POST', params=params)
-        return resp['data']
+        return resp
 
     def activity_search(self, query: dict, entity: str, params: dict={}, headers: dict={}) -> dict:
         """
@@ -934,7 +934,7 @@ class ITMClient(object):
         params['entityTypes'] = entity
         headers['Authorization'] = f"{self.auth.token['token_type']} {self.auth.access_token}"
         resp = webclient.post_request(url, headers=headers, json_data=query, method='POST', params=params)
-        return resp['data']
+        return resp
     
     def registry_search(self, query: dict, entity: str, params: dict = None, headers: dict = None ) -> dict:
         url = self.base_url + '/v2/apis/registry/queries'
