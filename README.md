@@ -146,4 +146,173 @@ Returns:
 
 ---
 
-### 
+### Searches
+* activity_search
+* depot_search
+* noficiation_search
+* registry_search
+* ruler_search
+
+Searches require a query be provided as a dictionary representing an elasitcsearch query.
+
+This is a simple example, more information can be found here: https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl.html
+```
+{
+  "query": {
+    "bool": {
+      "filter": {
+        "term": {
+          "status": "active"
+        }
+      }
+    }
+  }
+}
+
+```
+
+Aggregate searches are also supported
+```
+{
+  "aggs": {
+    "my-agg-name": {
+      "terms": {
+        "field": "my-field"
+      }
+    }
+  }
+}
+```
+
+### activity_search(query: dict, entity: str, params: dict = None, headers: dict = None)
+Performs a search query against the activity API
+
+
+* **Parameters**
+
+    
+    * **query** (*dict*) – A dict representing an Elasticsearch query, will be converted to json string
+
+
+    * **entity** (*str*) – entityTypes to search for
+    Accepted values: event, casbevent, audit, network
+
+
+    * **params** (*dict*) – A dict of web request url parameters
+    ex. offset = 0, limit=500
+
+
+    * **headers** (*dict*) – Headers to include in the http request, if not provided
+    a default header will be created with auth info
+
+* **Returns**
+
+    urllib.response object (dict)
+
+### depot_search(query: str, entity: str, params: dict = None, headers: dict = None)
+Performs a search query against the depot API
+
+
+* **Parameters**
+
+    
+    * **query** (*dict*) – A dict representing an Elasticsearch query, will be converted to json string
+
+
+    * **entity** (*str*) – entityTypes to search for
+    Accepted values: list, predicate, tag, article
+
+
+    * **params** (*dict*) – A dict of web request url parameters
+    ex. offset=0, limit=500
+
+
+    * **headers** (*dict*) – Headers to include in the http request, if not provided
+    a default header will be created with auth info
+
+
+
+* **Returns**
+
+    dict of returned objects
+
+### notification_search(query: dict, entity: str, params: dict = None, headers: dict = None)
+Performs a search query against the notification API
+
+
+* **Parameters**
+
+    
+    * **query** (*dict*) – A dict representing an Elasticsearch query, will be converted to json string
+
+
+    * **entity** (*str*) – entityTypes to search for
+    Accepted values: target-group, notification
+
+
+    * **params** (*dict*) – A dict of web request url parameters
+    ex. offset=0, limit=500
+
+
+    * **headers** (*dict*) – Headers to include in the http request, if not provided
+    a default header will be created with auth info
+
+
+
+* **Returns**
+
+    dict of returned objects
+
+### registry_search(query: dict, entity: str, params: Optional[dict] = None, headers: Optional[dict] = None)
+Performs a search query against the registry API
+
+
+* **Parameters**
+
+    
+    * **query** (*dict*) – A dict representing an Elasticsearch query, will be converted to json string
+
+
+    * **entity** (*str*) – entityTypes to search for
+    Accepted values: component, component-change, endpoint, endpoint-change, heartbeat
+
+
+    * **params** (*dict*) – A dict of web request url parameters
+    ex. offset=0, limit=500
+
+
+    * **headers** (*dict*) – Headers to include in the http request, if not provided
+    a default header will be created with auth info
+
+
+
+* **Returns**
+
+    urllib.response object (dict)
+
+### ruler_search(query: str, entity: str, params: dict = None, headers: dict = None)
+Performs a search query against the ruler API
+
+
+* **Parameters**
+
+    
+    * **query** (*dict*) – A dict representing an Elasticsearch query, will be converted to json string
+
+
+    * **entity** (*str*) – entityTypes to search for
+    Accepted values: artifact, rule, rulechain
+
+
+    * **params** (*dict*) – A dict of web request url parameters
+    ex. offset=0, limit=500
+
+
+    * **headers** (*dict*) – Headers to include in the http request, if not provided
+    a default header will be created with auth info
+
+
+
+* **Returns**
+
+    dict of returned objects
