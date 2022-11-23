@@ -38,8 +38,9 @@ query = {
     }
 }
 
-target_predicate = itm_client.depot_search(query, entity='predicate')
-predicate = Predicate(target_predicate[0])
+search = itm_client.depot_search(query, entity='predicate')
+target_predicate = search['data'][0]
+predicate = Predicate(target_predicate)
 
 # build new condition definition
 condition_list = []
@@ -61,7 +62,7 @@ for entry in condition_list:
 predicate.definition = definition
 predicate.patterns = patterns
 
-resp = itm_client.update_predicate(target_predicate[0]['id'], predicate)
+resp = itm_client.update_predicate(target_predicate['id'], predicate)
 
 if resp['_status']['status'] == '200':
     print('Condition successfully updated')
