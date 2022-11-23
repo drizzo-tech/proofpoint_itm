@@ -832,7 +832,7 @@ class ITMClient(object):
 
         Args:
             query (dict):
-                A dict representing an Elastic Search query, will be converted to json string
+                A dict representing an Elasticsearch query, will be converted to json string
             entity (str):
                 entityTypes to search for
                 Accepted values: list, predicate, tag, article
@@ -860,7 +860,7 @@ class ITMClient(object):
 
         Args:
             query (dict):
-                A dict representing an Elastic Search query, will be converted to json string
+                A dict representing an Elasticsearch query, will be converted to json string
             entity (str):
                 entityTypes to search for
                 Accepted values: target-group, notification
@@ -888,7 +888,7 @@ class ITMClient(object):
 
         Args:
             query (dict):
-                A dict representing an Elastic Search query, will be converted to json string
+                A dict representing an Elasticsearch query, will be converted to json string
             entity (str):
                 entityTypes to search for
                 Accepted values: artifact, rule, rulechain
@@ -916,7 +916,7 @@ class ITMClient(object):
 
         Args:
             query (dict):
-                A dict representing an Elastic Search query, will be converted to json string
+                A dict representing an Elasticsearch query, will be converted to json string
             entity (str):
                 entityTypes to search for
                 Accepted values: event, casbevent, audit, network
@@ -944,10 +944,10 @@ class ITMClient(object):
 
         Args:
             query (dict):
-                A dict representing an Elastic Search query, will be converted to json string
+                A dict representing an Elasticsearch query, will be converted to json string
             entity (str):
                 entityTypes to search for
-                Accepted values: component, component-change, endpoint, endpoint-change, heartbeat
+                Accepted values: event, casbevent, audit, network
             params (dict):
                 A dict of web request url parameters
                 ex. offset=0, limit=500
