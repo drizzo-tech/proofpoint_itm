@@ -115,13 +115,13 @@ class ITMClient(object):
         return resp['data']
 
 
-    def get_rule(self, id: str, includes: str='*', headers: dict={}) -> dict:
+    def get_rule(self, id_: str, includes: str='*', headers: dict={}) -> dict:
         """Get rule by ID 
 
         Query for rule by ID in the depot API
 
         Args:
-            id (str):
+            id_ (str):
                 Rule id to return, if not provided, return all
             includes (str):
                 comma-separated list of attributes to include, default = *
@@ -132,7 +132,7 @@ class ITMClient(object):
         Returns: 
             A dict of rule attributes
         """
-        endpoint = f'/v2/apis/ruler/rules/{id}'
+        endpoint = f'/v2/apis/ruler/rules/{id_}'
         url = self.base_url + endpoint
         params = {'includes': includes}
         headers = {'Authorization': f"{self.auth.token['token_type']} {self.auth.access_token}"}
@@ -140,13 +140,13 @@ class ITMClient(object):
         return resp
 
 
-    def update_rule(self, id: str, rule: Rule, headers: dict={}, test: bool=False) -> dict:
+    def update_rule(self, id_: str, rule: Rule, headers: dict={}, test: bool=False) -> dict:
         """Update existing rule
 
         Updates an existing rule from a proofpoint_itm.classes.Rule object
 
         Args:
-            id (str):
+            id_ (str):
                 Rule ID to update
             rule (obj): 
                 proofpoint_itm.classes.Rule object
@@ -161,7 +161,7 @@ class ITMClient(object):
         """
         if test:
             return {'id': str(uuid.uuid4())}
-        endpoint = f'/v2/apis/ruler/rules/{id}'
+        endpoint = f'/v2/apis/ruler/rules/{id_}'
         url = self.base_url + endpoint
         headers = {'Authorization': f"{self.auth.token['token_type']} {self.auth.access_token}",}
         resp = webclient.post_request(url, headers=headers, json_data=rule.as_dict(), method='PUT')
@@ -218,13 +218,13 @@ class ITMClient(object):
         return resp['data']
 
 
-    def get_predicate(self, id: str, includes: str='*', headers: dict={}) -> dict:
+    def get_predicate(self, id_: str, includes: str='*', headers: dict={}) -> dict:
         """Query for a single predicate
 
         Query for a single predicate by ID
 
         Args:
-            id (str):
+            id_ (str):
                 The predicate id to return
             includes (str): 
                 Comma-separated list of attributes to include, default = *
@@ -235,7 +235,7 @@ class ITMClient(object):
         Returns:
             A dict of predicate attributes
         """
-        endpoint = f'/v2/apis/depot/predicates/{id}'
+        endpoint = f'/v2/apis/depot/predicates/{id_}'
         url = self.base_url + endpoint
         params = {'includes': includes}
         headers = {'Authorization': f"{self.auth.token['token_type']} {self.auth.access_token}"}
@@ -269,11 +269,11 @@ class ITMClient(object):
         return conditions
 
     
-    def update_predicate(self, id, predicate: Predicate, headers: dict={}, test: bool=False) -> dict:
+    def update_predicate(self, id_, predicate: Predicate, headers: dict={}, test: bool=False) -> dict:
         """Update a predicate by ID
 
         Args:
-            id (str):
+            id_ (str):
                 ID of the predicate to udpate
             data (dict)
                 A dict of the keys/values to update
@@ -286,7 +286,7 @@ class ITMClient(object):
         Returns:
             API response (dict)
         """
-        endpoint = f'/v2/apis/depot/predicates/{id}'
+        endpoint = f'/v2/apis/depot/predicates/{id_}'
         url = self.base_url + endpoint
         headers = {'Authorization': f"{self.auth.token['token_type']} {self.auth.access_token}",}
         resp = webclient.post_request(url, headers=headers, json_data=predicate.as_dict(), method='PUT')
@@ -344,13 +344,13 @@ class ITMClient(object):
         return resp['data']
 
 
-    def get_tag(self, id: str, includes: str='*', headers: dict={}) -> dict:
+    def get_tag(self, id_: str, includes: str='*', headers: dict={}) -> dict:
         """Get tag by ID
 
         Query for specific tag ID in the depot API
 
         Args:
-            id (str):
+            id_ (str):
                 The tag ID
             includes (str): 
                 comma-separated list of attributes to include, default = *
@@ -361,20 +361,20 @@ class ITMClient(object):
         Returns: 
             A dict of tags info (dict)
         """
-        endpoint = f'/v2/apis/depot/tags/{id}'
+        endpoint = f'/v2/apis/depot/tags/{id_}'
         url = self.base_url + endpoint
         params = {'includes': includes}
         headers = {'Authorization': f"{self.auth.token['token_type']} {self.auth.access_token}"}
         resp = webclient.get_request(url, headers=headers, params=params)
         return resp
 
-    def update_tag(self, id: str, tag: Tag, headers: dict={}, test: bool=False) -> dict:
+    def update_tag(self, id_: str, tag: Tag, headers: dict={}, test: bool=False) -> dict:
         """Update existing tag
 
         Update existing tag from a proofpoint_itm.classes.Tag object
 
         Args:
-            id (str):
+            id_ (str):
                 id of the target tag to update
             tag (obj):
                 proofpoint_itm.classes.Tag object
@@ -389,7 +389,7 @@ class ITMClient(object):
         """
         if test:
             return {'id': str(uuid.uuid4())}
-        endpoint = f'/v2/apis/depot/tags/{id}'
+        endpoint = f'/v2/apis/depot/tags/{id_}'
         url = self.base_url + endpoint
         headers = {'Authorization': f"{self.auth.token['token_type']} {self.auth.access_token}",}
         resp = webclient.post_request(url, headers=headers, json_data=tag.as_dict(), method='PATCH')
@@ -431,8 +431,8 @@ class ITMClient(object):
         return resp['data']
 
 
-    def get_agent_policy(self, id: str, includes: str='*', headers: dict={}, params: dict=None) -> dict:
-        endpoint = f'/v2/apis/registry/policies/{id}'
+    def get_agent_policy(self, id_: str, includes: str='*', headers: dict={}, params: dict=None) -> dict:
+        endpoint = f'/v2/apis/registry/policies/{id_}'
         url = self.base_url + endpoint
         if params is None:
             params = {'limit': 99, 'offset': 0, 'includes': includes}
@@ -441,13 +441,13 @@ class ITMClient(object):
         return resp['data']
 
 
-    def update_agent_policy(self, id, policy: AgentPolicy, headers: dict={}, test: bool=False) -> dict:
+    def update_agent_policy(self, id_, policy: AgentPolicy, headers: dict={}, test: bool=False) -> dict:
         """Update an Agent Policy by ID
 
         Update an agent policy
         
         Args:
-            id (str):
+            id_ (str):
                 ID of the policy to update
             policy (AgentPolicy):
                 A proofpoint_itm.classes.AgentPolicy object
@@ -462,19 +462,19 @@ class ITMClient(object):
         """
         if test:
             return {'status': 200, 'msg': 'success'}
-        endpoint = f'/v2/apis/registry/policies/{id}'
+        endpoint = f'/v2/apis/registry/policies/{id_}'
         url = self.base_url + endpoint
         headers = {'Authorization': f"{self.auth.token['token_type']} {self.auth.access_token}"}
         resp = webclient.post_request(url, headers=headers, json_data=policy.as_dict(), method='PATCH')
         return resp
 
-    def overwrite_agent_policy(self, id, policy: AgentPolicy, headers: dict={}, test: bool=False) -> dict:
+    def overwrite_agent_policy(self, id_, policy: AgentPolicy, headers: dict={}, test: bool=False) -> dict:
         """Overwrite an Agent Policy by ID
 
         Overwrite an agent policy
         
         Args:
-            id (str):
+            id_ (str):
                 ID of the policy to update
             policy (AgentPolicy):
                 A proofpoint_itm.classes.AgentPolicy object
@@ -489,7 +489,7 @@ class ITMClient(object):
         """
         if test:
             return {'status': 200, 'msg': 'success'}
-        endpoint = f'/v2/apis/registry/policies/{id}'
+        endpoint = f'/v2/apis/registry/policies/{id_}'
         url = self.base_url + endpoint
         headers = {'Authorization': f"{self.auth.token['token_type']} {self.auth.access_token}"}
         resp = webclient.post_request(url, headers=headers, json_data=policy.as_dict(), method='PUT')
@@ -544,13 +544,13 @@ class ITMClient(object):
         return resp['data']
 
 
-    def update_notification_policy(self, id: str, target_group: TargetGroup, headers: dict={}, test: bool=False) -> dict:
+    def update_notification_policy(self, id_: str, target_group: TargetGroup, headers: dict={}, test: bool=False) -> dict:
         """Update existing notification policy (target-group)
 
         Updates an existing notification policy from a proofpoint_itm.classes.TargetGroup object
 
         Args:
-            id (str)
+            id_ (str)
                 The target-group ID to update
             target_group (obj):
                 proofpoint_itm.classes.TargetGroup object
@@ -565,7 +565,7 @@ class ITMClient(object):
         """
         if test:
             return {'id': str(uuid.uuid4())}
-        endpoint = f'/v2/apis/notification/target-groups/{id}'
+        endpoint = f'/v2/apis/notification/target-groups/{id_}'
         url = self.base_url + endpoint
         headers = {'Authorization': f"{self.auth.token['token_type']} {self.auth.access_token}",}
         resp = webclient.post_request(url, headers=headers, json_data=target_group.as_dict(), method='PATCH')
@@ -612,13 +612,13 @@ class ITMClient(object):
         return resp['data']
 
 
-    def get_dictionary(self, id: str, headers: dict={}, include: str=None) -> dict:
+    def get_dictionary(self, id_: str, headers: dict={}, include: str=None) -> dict:
         """
         Queries for user defined dictionaries
 
         Returns json as dict
         """
-        endpoint = f'/v2/apis/ruler/configurations/dlp/dictionaries/{id}'
+        endpoint = f'/v2/apis/ruler/configurations/dlp/dictionaries/{id_}'
         url = self.base_url + endpoint
         params = {}
         if include is not None:
@@ -628,13 +628,13 @@ class ITMClient(object):
         return resp['data']
 
 
-    def get_dictionary_terms(self, id: str, headers: dict={}, includes: str='*') -> dict:
+    def get_dictionary_terms(self, id_: str, headers: dict={}, includes: str='*') -> dict:
         """
         Queries for entries/terms in specific user defined dictionary
 
         Returns dict dictionary entries
         """
-        endpoint = f'/v2/apis/ruler/configurations/dlp/dictionaries/{id}/entries'
+        endpoint = f'/v2/apis/ruler/configurations/dlp/dictionaries/{id_}/entries'
         url = self.base_url + endpoint
         params = {'includes': includes}
         headers = {'Authorization': f"{self.auth.token['token_type']} {self.auth.access_token}"}
@@ -642,13 +642,13 @@ class ITMClient(object):
         return resp['data']
     
 
-    def update_dictionary(self, id: str, dictionary: Dictionary, headers: dict={}) -> dict:
+    def update_dictionary(self, id_: str, dictionary: Dictionary, headers: dict={}) -> dict:
         """Update existing dictionary
 
         Updates an existing user defined dictionary by ID
 
         Args:
-            id (str):
+            id_ (str):
                 dictionary ID
             dictionary (Dictionary):
                 A proofpoint_itm.classes.Dictionary object
@@ -659,7 +659,7 @@ class ITMClient(object):
         Returns:
             API Response as dict
         """
-        endpoint = f'/v2/apis/ruler/configurations/dlp/dictionaries/{id}'
+        endpoint = f'/v2/apis/ruler/configurations/dlp/dictionaries/{id_}'
         url = self.base_url + endpoint
         headers = {'Authorization': f"{self.auth.token['token_type']} {self.auth.access_token}",}
         resp = webclient.post_request(url, headers=headers, json_data=dictionary.as_dict(), method='PATCH')
@@ -710,13 +710,13 @@ class ITMClient(object):
         return resp
 
 
-    def delete_dictionary(self, id: str, headers: dict={}) -> dict:
+    def delete_dictionary(self, id_: str, headers: dict={}) -> dict:
         """
         Deletes a dictionary by ID
 
         Returns response as dict
         """
-        endpoint = f'/v2/apis/ruler/configurations/dlp/dictionaries/{id}'
+        endpoint = f'/v2/apis/ruler/configurations/dlp/dictionaries/{id_}'
         url = self.base_url + endpoint
         headers = {'Authorization': f"{self.auth.token['token_type']} {self.auth.access_token}"}
         resp = webclient.delete_request(url, headers=headers)
@@ -727,7 +727,7 @@ class ITMClient(object):
         """Update workflow status of an alert/incident
         
         Args:
-            fqid (str):
+            fqid_ (str):
                 The fqid of an event/incident
             status (str):
                 The new status to be applied to the incident
@@ -756,15 +756,15 @@ class ITMClient(object):
         resp = webclient.get_request(url, headers=headers)
         return resp['data']
 
-    def get_detector(self, id: str, headers: dict={}) -> dict:
-        endpoint = f'/v2/apis/ruler/configurations/dlp/detectors/{id}'
+    def get_detector(self, id_: str, headers: dict={}) -> dict:
+        endpoint = f'/v2/apis/ruler/configurations/dlp/detectors/{id_}'
         url = self.base_url + endpoint
         headers['Authorization'] = f"{self.auth.token['token_type']} {self.auth.access_token}"
         resp = webclient.get_request(url, headers=headers)
         return resp
 
-    def update_detector(self, id: str, detector: Detector, headers: dict={}):
-        endpoint = f'/v2/apis/ruler/configurations/dlp/detectors/{id}'
+    def update_detector(self, id_: str, detector: Detector, headers: dict={}):
+        endpoint = f'/v2/apis/ruler/configurations/dlp/detectors/{id_}'
         url = self.base_url + endpoint
         headers['Authorization'] = f"{self.auth.token['token_type']} {self.auth.access_token}"
         resp = webclient.post_request(url, headers=headers, json_data=detector.as_dict(), method='PATCH')
@@ -784,15 +784,15 @@ class ITMClient(object):
         resp = webclient.get_request(url, headers=headers)
         return resp['data']
 
-    def get_detector_set(self, id: str, headers: dict={}) -> dict:
-        endpoint = f'/v2/apis/ruler/configurations/dlp/detectorsets/{id}'
+    def get_detector_set(self, id_: str, headers: dict={}) -> dict:
+        endpoint = f'/v2/apis/ruler/configurations/dlp/detectorsets/{id_}'
         url = self.base_url + endpoint
         headers['Authorization'] = f"{self.auth.token['token_type']} {self.auth.access_token}"
         resp = webclient.get_request(url, headers=headers)
         return resp
 
-    def update_detector_set(self, id: str, detector_set: DetectorSet, headers: dict={}):
-        endpoint = f'/v2/apis/ruler/configurations/dlp/detectorsets/{id}'
+    def update_detector_set(self, id_: str, detector_set: DetectorSet, headers: dict={}):
+        endpoint = f'/v2/apis/ruler/configurations/dlp/detectorsets/{id_}'
         url = self.base_url + endpoint
         headers['Authorization'] = f"{self.auth.token['token_type']} {self.auth.access_token}"
         resp = webclient.post_request(url, headers=headers, json_data=detector_set.as_dict(), method='PATCH')
@@ -805,8 +805,8 @@ class ITMClient(object):
         resp = webclient.post_request(url, headers=headers, json_data=detector_set.as_dict(), method='POST')
         return resp
     
-    def delete_detector_set(self, id: str, headers: dict={}):
-        endpoint = f'/v2/apis/ruler/configurations/dlp/detectorsets/{id}'
+    def delete_detector_set(self, id_: str, headers: dict={}):
+        endpoint = f'/v2/apis/ruler/configurations/dlp/detectorsets/{id_}'
         url = self.base_url + endpoint
         headers['Authorization'] = f"{self.auth.token['token_type']} {self.auth.access_token}"
         resp = webclient.delete_request(url, headers=headers)
