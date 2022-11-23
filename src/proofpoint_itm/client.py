@@ -935,3 +935,16 @@ class ITMClient(object):
         headers['Authorization'] = f"{self.auth.token['token_type']} {self.auth.access_token}"
         resp = webclient.post_request(url, headers=headers, json_data=query, method='POST', params=params)
         return resp['data']
+    
+    def registry_search(self, query: dict, entity: str, params: dict = None, headers: dict = None ) -> dict:
+        url = self.base_url + '/v2/apis/registry/queries'
+        if params is None:
+            params = {}
+        params['entityTypes'] = entity
+
+        if headers is None:
+            headers = {}
+        headers['Authorization'] = f"{self.auth.token['token_type']} {self.auth.access_token}"
+
+        resp = webclient.post_request(url, headers=headers, json_data=query, method='POST', params=params)
+        return resp
