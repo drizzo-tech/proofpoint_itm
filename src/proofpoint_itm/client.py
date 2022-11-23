@@ -7,12 +7,14 @@ class ITMClient(object):
     """ Client class for Proofpoint ITM SaaS API.
         
     This class shall be initialized with a config dictionary containing the
-    following information:
+    client_id, tenant_id, and client_secret::
+
         {
-            "tenant_id" : "<The tenant name>"
-            "client_id" : "<application client id>"
-            "client_secret": "<client secret for token based auth>"
+            "tenant_id" : "The tenant name"
+            "client_id" : "application client id"
+            "client_secret": "client secret for token based auth"
         }
+    
     """
     
     def __init__(self, config, scope='*', verify=True, **kwargs):
@@ -730,7 +732,7 @@ class ITMClient(object):
             status (str):
                 The new status to be applied to the incident
                 Accepts new, reopened, in-progress, escalated, on-hold,
-                        resolved, false-positive, not-an-issue
+                resolved, false-positive, not-an-issue
 
         Returns:
             urllib.response object
@@ -926,7 +928,7 @@ class ITMClient(object):
                 a default header will be created with auth info
 
         Returns:
-            dict of returned objects
+            urllib.response object (dict)
 
         """
         endpoint = '/v2/apis/activity/queries'
@@ -937,6 +939,26 @@ class ITMClient(object):
         return resp
     
     def registry_search(self, query: dict, entity: str, params: dict = None, headers: dict = None ) -> dict:
+        """
+        Performs a search query against the registry API
+
+        Args:
+            query (dict):
+                A dict representing an Elastic Search query, will be converted to json string
+            entity (str):
+                entityTypes to search for
+                Accepted values: component, component-change, endpoint, endpoint-change, heartbeat
+            params (dict):
+                A dict of web request url parameters
+                ex. offset=0, limit=500
+            headers (dict):
+                Headers to include in the http request, if not provided
+                a default header will be created with auth info
+
+        Returns:
+            urllib.response object (dict)
+
+        """
         url = self.base_url + '/v2/apis/registry/queries'
         if params is None:
             params = {}
