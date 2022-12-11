@@ -314,7 +314,7 @@ class ITMClient(object):
             return {'id': str(uuid.uuid4())}
         endpoint = f'/v2/apis/depot/predicates'
         url = self.base_url + endpoint
-        headers = {'Authorization': f"{self.auth.token['token_type']} {self.auth.access_token}",}
+        headers = {'Authorization': f"{self.auth.token['token_type']} {self.auth.access_token}"}
 
         data = {'data': [predicate.as_dict()]}
         resp = webclient.post_request(url, headers=headers, json_data=data, method='POST')
