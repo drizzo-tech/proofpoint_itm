@@ -23,16 +23,16 @@ with open(args.query, 'r') as f:
 
 events = itm_client.activity_search(query, 'event')
 
-if len(events) > 0:
+if len(events['data']) > 0:
     if args.outfile:
         fname, fext = os.path.splitext(args.outfile)
         if fext == '.csv':
-            df = pd.DataFrame.from_dict(events)
+            df = pd.DataFrame.from_dict(events['data'])
             df.to_csv(args.outfile, index=False, header=True)
         else:
             with open(args.outfile, 'w') as out:
-                out.write(json.dumps(events, indent=4))
+                out.write(json.dumps(events['data'], indent=4))
     else:
-        print(json.dumps(events, indent=4))
+        print(json.dumps(events['data'], indent=4))
 else:
     print('No events returned from activity search')
