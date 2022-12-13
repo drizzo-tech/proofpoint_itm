@@ -5,7 +5,7 @@ with open('README.md', 'r', encoding='utf-8') as f:
     readme = f.read()
 
 setup(name='proofpoint_itm',
-    version='0.2.0',
+    version='0.3.0',
     description='Proofpoint ITM API client library',
     long_description=readme,
     long_description_content_type='text/markdown',
