@@ -62,7 +62,7 @@ for entry in condition_list:
 predicate.definition = definition
 predicate.patterns = patterns
 
-resp = itm_client.update_predicate(target_predicate['id'], predicate)
+resp = itm_client.overwrite_predicate(target_predicate['id'], predicate)
 
 if resp['_status']['status'] == '200':
     print('Condition successfully updated')
