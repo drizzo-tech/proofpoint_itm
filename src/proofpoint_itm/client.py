@@ -272,6 +272,33 @@ class ITMClient(object):
     def update_predicate(self, id_, predicate: Predicate, headers: dict={}, test: bool=False) -> dict:
         """Update a predicate by ID
 
+        Performs a 'PATCH' method call to the depot/predicate API
+
+        Args:
+            id_ (str):
+                ID of the predicate to udpate
+            data (dict)
+                A dict of the keys/values to update
+            headers (dict): 
+                headers to include in the http request, if not provided
+                a default header will be created with auth info
+            test (bool):
+                Test flag to return fake generated uuid
+
+        Returns:
+            API response (dict)
+        """
+        endpoint = f'/v2/apis/depot/predicates/{id_}'
+        url = self.base_url + endpoint
+        headers = {'Authorization': f"{self.auth.token['token_type']} {self.auth.access_token}",}
+        resp = webclient.post_request(url, headers=headers, json_data=predicate.as_dict(), method='PATCH')
+        return resp
+
+    def overwrite_predicate(self, id_, predicate: Predicate, headers: dict={}, test: bool=False) -> dict:
+        """Overwrite a predicate by ID
+
+        Performs a 'PUT' method call to the depot/predicate API
+
         Args:
             id_ (str):
                 ID of the predicate to udpate
@@ -826,7 +853,7 @@ class ITMClient(object):
         resp = webclient.post_request(url, headers=headers, method='PUT', json_data=data)
         return resp
 
-    def depot_search(self, query: str, entity: str, params: dict={}, headers: dict={}) -> dict:
+    def depot_search(self, query: dict, entity: str, params: dict={}, headers: dict={}) -> dict:
         """
         Performs a search query against the depot API
 
