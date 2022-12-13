@@ -45,7 +45,7 @@ match = {
 agentpolicy.match = match
 
 # push to API
-resp = itm_client.update_agent_policy(target_policy_id, agentpolicy)
+resp = itm_client.overwrite_agent_policy(target_policy_id, agentpolicy)
 
 if resp['_status']['status'] == '200':
     print('Updated AgentPolicy successfully')
