@@ -9,19 +9,23 @@ class Predicate:
     def __init__(self, json_data={}):
         data = copy.deepcopy(json_data)
 
-        self.definition = data.get('definition', {})
-        self.patterns = data.get('patterns', [])
-        self.predicates = data.get('predicates', [])
-        self.purposes = data.get('purposes', [])
-        self.lists = data.get('lists', [])
-        self.tags = data.get('tags', [])
-        self.details = data.get('details', {})
-        self.alias = data.get('alias')
-        self.risk = data.get('risk', {})
-        self.kind = data.get('kind')
-        self.refs = []
-        for v in self.definition.values():
-            self._get_nested_refs(v)
+        try:
+            self.id = data.get('id')
+            self.definition = data.get('definition', {})
+            self.patterns = data.get('patterns', [])
+            self.predicates = data.get('predicates', [])
+            self.purposes = data.get('purposes', [])
+            self.lists = data.get('lists', [])
+            self.tags = data.get('tags', [])
+            self.details = data.get('details', {})
+            self.alias = data.get('alias')
+            self.risk = data.get('risk', {})
+            self.kind = data.get('kind')
+            self.refs = []
+            for v in self.definition.values():
+                self._get_nested_refs(v)
+        except Exception as e:
+            print(f'Error creating predicate object: {e}')
 
     def _get_nested_refs(self, data):
         for item in data:
@@ -63,6 +67,7 @@ class Rule:
     def __init__(self, json_data={}):
         data = copy.deepcopy(json_data)
         try:
+            self.id = data.get('id')
             self.predicate = data.get('predicate', {})
             self.actions = data.get('actions', [])
             self.options = data.get('options', [])
@@ -97,6 +102,7 @@ class Tag:
     def __init__(self, json_data={}):
         data = copy.deepcopy(json_data)
         try:
+            self.id = data.get('id')
             self.status = data.get('status')
             self.name = data.get('name')
             self.alias = data.get('alias')
@@ -123,6 +129,7 @@ class AgentPolicy:
     def __init__(self, json_data={}):
         data = copy.deepcopy(json_data)
         try:
+            self.id = data.get('id')
             self.alias = data.get('alias')
             self.description = data.get('description')
             self.kind = data.get('kind')
@@ -159,6 +166,7 @@ class TargetGroup:
     def __init__(self, json_data={}):
         data = copy.deepcopy(json_data)
         try:
+            self.id = data.get('id')
             self.displayName = data.get('displayName')
             self.description = data.get('description', '')
             self.alias = data.get('alias')
@@ -189,6 +197,7 @@ class Target:
     def __init__(self, json_data={}):
         data = copy.deepcopy(json_data)
         try:
+            self.id = data.get('id')
             self.details = data.get('details', {})
             self.relations = data.get('relations', [])
             self.kind = data.get('kind')
@@ -225,6 +234,7 @@ class Dictionary:
     def __init__(self, json_data={}):
         data = copy.deepcopy(json_data)
         try:
+            self.id = data.get('id')
             self.name = data.get('name')
             self.description = data.get('description')
             self.entries = data.get('entries', [])
@@ -260,6 +270,7 @@ class Detector:
     def __init__(self, json_data={}):
         data = copy.deepcopy(json_data)
         try:
+            self.id = data.get('id')
             self.name = data.get('name')
             self.description = data.get('description')
             self.expression = data.get('expression')
@@ -300,6 +311,7 @@ class DetectorSet:
     def __init__(self, json_data={}):
         data = copy.deepcopy(json_data)
         try:
+            self.id = data.get('id')
             self.name = data.get('name')
             self.description = data.get('description')
             detectors = data.get('enabledDetectors', [])
