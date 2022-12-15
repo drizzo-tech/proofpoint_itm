@@ -64,7 +64,7 @@ predicate.patterns = patterns
 
 resp = itm_client.overwrite_predicate(target_predicate['id'], predicate)
 
-if resp['_status']['status'] == '200':
+if resp['_status']['status'] == 200:
     print('Condition successfully updated')
 
 try:
