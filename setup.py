@@ -5,7 +5,7 @@ with open('README.md', 'r', encoding='utf-8') as f:
     readme = f.read()
 
 setup(name='proofpoint_itm',
-    version='0.3.0',
+    version='0.3.1',
     description='Proofpoint ITM API client library',
     long_description=readme,
     long_description_content_type='text/markdown',
@@ -24,8 +24,6 @@ setup(name='proofpoint_itm',
     package_dir={'': 'src'},
     packages=find_packages(where='src'),
     python_requires='>=3.6, <4',
-    install_requires=[
-        'requests'
-    ],
-    keywords='Proofpoint, ITM, ObserveIT'
+    install_requires=[],
+    keywords='Proofpoint ITM, Proofpoint, ITM, ObserveIT'
 )
