@@ -471,6 +471,30 @@ class ITMClient(object):
         resp = webclient.post_request(url, headers=headers, method='PATCH', params=params)
         return resp
     
+    def add_activity_assignee(self, fqid, admin_id, headers: dict={}) -> dict:
+        """Add assignee to activity
+
+        Add assignee to activity
+
+        Args:
+            fqid (str):
+                The fully qualified id of the activity to add the assignee to
+            admin_id (str):
+                The admin ID that will be assigned to the activity
+            headers (dict): 
+                headers to include in the http request, if not provided
+                a default header will be created with auth info
+
+        Returns:
+            API response (dict)
+        """
+        endpoint = f'/v2/apis/activity/events/{fqid}/annotations/workflow/assignment'
+        body = {'id': admin_id}
+        url = self.base_url + endpoint
+        headers = {'Authorization': f"{self.auth.token['token_type']} {self.auth.access_token}"}
+        resp = webclient.post_request(url, headers=headers, method='POST', json_data=body)
+        return resp
+
     def get_agent_policies(self, includes: str='*', headers: dict={}, params: dict=None) -> dict:
         endpoint = '/v2/apis/registry/policies'
         url = self.base_url + endpoint
