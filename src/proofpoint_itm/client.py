@@ -447,7 +447,30 @@ class ITMClient(object):
         resp = webclient.post_request(url, headers=headers, json_data=tag.as_dict(), method='POST')
         return resp
 
+    def add_activity_tag(self, fqid, tag_id, headers: dict={}) -> dict:
+        """Add tag to activity
 
+        Add tag to activity
+
+        Args:
+            fqid (str):
+                The fully qualified id of the activity to add the tag to
+            tag_id (str):
+                The tag ID to add to the activity
+            headers (dict): 
+                headers to include in the http request, if not provided
+                a default header will be created with auth info
+
+        Returns:
+            API response (dict)
+        """
+        endpoint = f'/v2/apis/activity/events/{fqid}'
+        params = {'tagValue': tag_id}
+        url = self.base_url + endpoint
+        headers = {'Authorization': f"{self.auth.token['token_type']} {self.auth.access_token}"}
+        resp = webclient.post_request(url, headers=headers, method='PATCH', params=params)
+        return resp
+    
     def get_agent_policies(self, includes: str='*', headers: dict={}, params: dict=None) -> dict:
         endpoint = '/v2/apis/registry/policies'
         url = self.base_url + endpoint
