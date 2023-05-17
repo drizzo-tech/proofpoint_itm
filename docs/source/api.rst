@@ -1,5 +1,8 @@
 API Reference
 =============
 
-.. automodule:: client
+.. autoclass:: proofpoint_itm.client.ITMClient
     :members:
+    :undoc-members:
+    :show-inheritance:
+    

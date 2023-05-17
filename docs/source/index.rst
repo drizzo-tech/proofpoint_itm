@@ -45,7 +45,6 @@ Create a client instance and use it to interact with the API:
    :caption: Reference Info:
 
    api
-   modules
 
 
 Indices and tables
