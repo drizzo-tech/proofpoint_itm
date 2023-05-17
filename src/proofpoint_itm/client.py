@@ -47,13 +47,13 @@ class ITMClient(object):
 
         Args:
             includes (str):
-                List of attributes to return, defaults to *
+                List of attributes to return, defaults to '*'
             kind (str): 
                 Type of agent to return,
-                Accepts *, agent:saas, or updater:saas, defaults to *
+                Accepts '*', 'agent:saas', or 'updater:saas', defaults to '*'
             status (str): 
                 Filter by agent status
-                Accepts: *, HEALTHY, UNHEALTHY, UNREACHABLE, DEAD, INACTIVE
+                Accepts: '*', HEALTHY, UNHEALTHY, UNREACHABLE, DEAD, INACTIVE
 
         Returns:
             dict: A list of endpoint objects
