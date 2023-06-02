@@ -15,7 +15,7 @@ def get_request(url, headers=None, params=None, timeout=10):
         url_params = urlencode(params)
         url = url + '?' + url_params
 
-    resp = make_request(url, headers=headers, method='GET')
+    resp = make_request(url, headers=headers, method='GET', timeout=timeout)
     return resp
 
 
@@ -40,7 +40,7 @@ def post_request(url, headers=None, data=None, json_data=None, method='POST', pa
         data = urlencode(data)
         data = data.encode('utf-8')
 
-    resp = make_request(url, headers=headers, data=data, method=method)
+    resp = make_request(url, headers=headers, data=data, method=method, timeout=timeout)
     return resp
 
 def delete_request(url, headers=None, params=None, timeout=10):
@@ -55,7 +55,7 @@ def delete_request(url, headers=None, params=None, timeout=10):
         url_params = urlencode(params)
         url = url + '?' + url_params
 
-    resp = make_request(url, headers=headers, method='DELETE')
+    resp = make_request(url, headers=headers, method='DELETE', timeout=timeout)
     return resp
 
 def make_request(url, headers=None, data=None, method=None, timeout=10):

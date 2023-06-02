@@ -38,6 +38,7 @@ class ITMClient(object):
         self.tenant_id = config['tenant_id']
         self.base_url = f"https://{config['tenant_id']}.explore.proofpoint.com"
         self.auth = itm_auth(config, verify=verify, scope=scope)
+        self.timeout = kwargs.get('timeout', 10)
 
     
     def get_endpoints(self, includes: str='*', kind: str='*', status: str='*',
@@ -73,7 +74,7 @@ class ITMClient(object):
 
         endpoints = []
         resp = webclient.get_request(
-                url, headers=headers, params=params)
+                url, headers=headers, params=params, timeout=self.timeout)
         total = resp['_meta']['stats']['total']
 
         if count:
@@ -85,7 +86,7 @@ class ITMClient(object):
         while retrieved < total:
             params['offset'] = params['offset'] + 100
             resp = webclient.get_request(
-                    url, headers=headers, params=params)
+                    url, headers=headers, params=params, timeout=self.timeout)
             endpoints += resp['data']
             retrieved = len(endpoints)
         
@@ -111,7 +112,7 @@ class ITMClient(object):
         url = self.base_url + endpoint
         params = {'includes': includes}
         headers = {'Authorization': f"{self.auth.token['token_type']} {self.auth.access_token}"}
-        resp = webclient.get_request(url, headers=headers, params=params)
+        resp = webclient.get_request(url, headers=headers, params=params, timeout=self.timeout)
         return resp['data']
 
 
@@ -136,7 +137,7 @@ class ITMClient(object):
         url = self.base_url + endpoint
         params = {'includes': includes}
         headers = {'Authorization': f"{self.auth.token['token_type']} {self.auth.access_token}"}
-        resp = webclient.get_request(url, headers=headers, params=params)
+        resp = webclient.get_request(url, headers=headers, params=params, timeout=self.timeout)
         return resp
 
 
@@ -163,7 +164,7 @@ class ITMClient(object):
         endpoint = f'/v2/apis/ruler/rules/{id_}'
         url = self.base_url + endpoint
         headers = {'Authorization': f"{self.auth.token['token_type']} {self.auth.access_token}",}
-        resp = webclient.post_request(url, headers=headers, json_data=rule.as_dict(), method='PUT')
+        resp = webclient.post_request(url, headers=headers, json_data=rule.as_dict(), method='PUT', timeout=self.timeout)
         return resp
 
 
@@ -190,7 +191,7 @@ class ITMClient(object):
         url = self.base_url + endpoint
         headers = {'Authorization': f"{self.auth.token['token_type']} {self.auth.access_token}",}
         data = {'data': [rule.as_dict()]}
-        resp = webclient.post_request(url, headers=headers, json_data=data, method='POST')
+        resp = webclient.post_request(url, headers=headers, json_data=data, method='POST', timeout=self.timeout)
         return resp
 
 
@@ -202,7 +203,7 @@ class ITMClient(object):
             includes (str): 
                 Comma-separated list of attributes to include, default = *
             headers (dict): 
-                headers to include in the http request, if not provided
+                headers to include in the http request, if not 
                 a default header will be created with auth info
 
         Returns: 
@@ -212,7 +213,7 @@ class ITMClient(object):
         url = self.base_url + endpoint
         params = {'includes': includes}
         headers = {'Authorization': f"{self.auth.token['token_type']} {self.auth.access_token}"}
-        resp = webclient.get_request(url, headers=headers, params=params)
+        resp = webclient.get_request(url, headers=headers, params=params, timeout=self.timeout)
         return resp['data']
 
 
@@ -236,7 +237,7 @@ class ITMClient(object):
         url = self.base_url + endpoint
         params = {'includes': includes}
         headers = {'Authorization': f"{self.auth.token['token_type']} {self.auth.access_token}"}
-        resp = webclient.get_request(url, headers=headers, params=params)
+        resp = webclient.get_request(url, headers=headers, params=params, timeout=self.timeout)
         return resp
 
 
@@ -286,7 +287,7 @@ class ITMClient(object):
         endpoint = f'/v2/apis/depot/predicates/{id_}'
         url = self.base_url + endpoint
         headers = {'Authorization': f"{self.auth.token['token_type']} {self.auth.access_token}",}
-        resp = webclient.post_request(url, headers=headers, json_data=predicate.as_dict(), method='PATCH')
+        resp = webclient.post_request(url, headers=headers, json_data=predicate.as_dict(), method='PATCH', timeout=self.timeout)
         return resp
 
     def overwrite_predicate(self, id_, predicate: Predicate, headers: dict={}, test: bool=False) -> dict:
@@ -310,7 +311,7 @@ class ITMClient(object):
         endpoint = f'/v2/apis/depot/predicates/{id_}'
         url = self.base_url + endpoint
         headers = {'Authorization': f"{self.auth.token['token_type']} {self.auth.access_token}",}
-        resp = webclient.post_request(url, headers=headers, json_data=predicate.as_dict(), method='PUT')
+        resp = webclient.post_request(url, headers=headers, json_data=predicate.as_dict(), method='PUT', timeout=self.timeout)
         return resp
 
 
@@ -337,7 +338,7 @@ class ITMClient(object):
         headers = {'Authorization': f"{self.auth.token['token_type']} {self.auth.access_token}"}
 
         data = {'data': [predicate.as_dict()]}
-        resp = webclient.post_request(url, headers=headers, json_data=data, method='POST')
+        resp = webclient.post_request(url, headers=headers, json_data=data, method='POST', timeout=self.timeout)
         return resp
 
 
@@ -358,7 +359,7 @@ class ITMClient(object):
         url = self.base_url + endpoint
         params = {'includes': includes}
         headers = {'Authorization': f"{self.auth.token['token_type']} {self.auth.access_token}"}
-        resp = webclient.get_request(url, headers=headers, params=params)
+        resp = webclient.get_request(url, headers=headers, params=params, timeout=self.timeout)
         return resp['data']
 
 
@@ -380,7 +381,7 @@ class ITMClient(object):
         url = self.base_url + endpoint
         params = {'includes': includes}
         headers = {'Authorization': f"{self.auth.token['token_type']} {self.auth.access_token}"}
-        resp = webclient.get_request(url, headers=headers, params=params)
+        resp = webclient.get_request(url, headers=headers, params=params, timeout=self.timeout)
         return resp
 
     def update_tag(self, id_: str, tag: Tag, headers: dict={}, test: bool=False) -> dict:
@@ -403,7 +404,7 @@ class ITMClient(object):
         endpoint = f'/v2/apis/depot/tags/{id_}'
         url = self.base_url + endpoint
         headers = {'Authorization': f"{self.auth.token['token_type']} {self.auth.access_token}",}
-        resp = webclient.post_request(url, headers=headers, json_data=tag.as_dict(), method='PATCH')
+        resp = webclient.post_request(url, headers=headers, json_data=tag.as_dict(), method='PATCH', timeout=self.timeout)
         return resp
 
     def create_tag(self, tag: Tag, headers: dict={}, test: bool=False) -> dict:
@@ -425,7 +426,7 @@ class ITMClient(object):
         endpoint = f'/v2/apis/depot/tags'
         url = self.base_url + endpoint
         headers = {'Authorization': f"{self.auth.token['token_type']} {self.auth.access_token}",}
-        resp = webclient.post_request(url, headers=headers, json_data=tag.as_dict(), method='POST')
+        resp = webclient.post_request(url, headers=headers, json_data=tag.as_dict(), method='POST', timeout=self.timeout)
         return resp
 
     def add_activity_tag(self, fqid, tag_id, headers: dict={}) -> dict:
@@ -446,7 +447,7 @@ class ITMClient(object):
         params = {'tagValue': tag_id}
         url = self.base_url + endpoint
         headers = {'Authorization': f"{self.auth.token['token_type']} {self.auth.access_token}"}
-        resp = webclient.post_request(url, headers=headers, method='PATCH', params=params)
+        resp = webclient.post_request(url, headers=headers, method='PATCH', params=params, timeout=self.timeout)
         return resp
     
     def add_activity_assignee(self, fqid, admin_id, headers: dict={}) -> dict:
@@ -467,7 +468,7 @@ class ITMClient(object):
         body = {'id': admin_id}
         url = self.base_url + endpoint
         headers = {'Authorization': f"{self.auth.token['token_type']} {self.auth.access_token}"}
-        resp = webclient.post_request(url, headers=headers, method='POST', json_data=body)
+        resp = webclient.post_request(url, headers=headers, method='POST', json_data=body, timeout=self.timeout)
         return resp
 
     def get_agent_policies(self, includes: str='*', headers: dict={}, params: dict=None) -> list:
@@ -489,7 +490,7 @@ class ITMClient(object):
         if params is None:
             params = {'limit': 99, 'offset': 0, 'includes': includes}
         headers = {'Authorization': f"{self.auth.token['token_type']} {self.auth.access_token}"}
-        resp = webclient.get_request(url, headers=headers, params=params)
+        resp = webclient.get_request(url, headers=headers, params=params, timeout=self.timeout)
         return resp['data']
 
 
@@ -513,7 +514,7 @@ class ITMClient(object):
         if params is None:
             params = {'limit': 99, 'offset': 0, 'includes': includes}
         headers = {'Authorization': f"{self.auth.token['token_type']} {self.auth.access_token}"}
-        resp = webclient.get_request(url, headers=headers, params=params)
+        resp = webclient.get_request(url, headers=headers, params=params, timeout=self.timeout)
         return resp['data']
 
 
@@ -540,7 +541,7 @@ class ITMClient(object):
         endpoint = f'/v2/apis/registry/policies/{id_}'
         url = self.base_url + endpoint
         headers = {'Authorization': f"{self.auth.token['token_type']} {self.auth.access_token}"}
-        resp = webclient.post_request(url, headers=headers, json_data=policy.as_dict(), method='PATCH')
+        resp = webclient.post_request(url, headers=headers, json_data=policy.as_dict(), method='PATCH', timeout=self.timeout)
         return resp
 
     def overwrite_agent_policy(self, id_, policy: AgentPolicy, headers: dict={}, test: bool=False) -> dict:
@@ -566,7 +567,7 @@ class ITMClient(object):
         endpoint = f'/v2/apis/registry/policies/{id_}'
         url = self.base_url + endpoint
         headers = {'Authorization': f"{self.auth.token['token_type']} {self.auth.access_token}"}
-        resp = webclient.post_request(url, headers=headers, json_data=policy.as_dict(), method='PUT')
+        resp = webclient.post_request(url, headers=headers, json_data=policy.as_dict(), method='PUT', timeout=self.timeout)
         return resp
 
     def create_agent_policy(self, policy: AgentPolicy, headers: dict={}, test: bool=False) -> dict:
@@ -590,7 +591,7 @@ class ITMClient(object):
         endpoint = f'/v2/apis/registry/policies'
         url = self.base_url + endpoint
         headers = {'Authorization': f"{self.auth.token['token_type']} {self.auth.access_token}"}
-        resp = webclient.post_request(url, headers=headers, json_data=policy.as_dict(), method='POST')
+        resp = webclient.post_request(url, headers=headers, json_data=policy.as_dict(), method='POST', timeout=self.timeout)
         return resp
 
 
@@ -612,7 +613,7 @@ class ITMClient(object):
         url = self.base_url + endpoint
         params = {'includes': includes}
         headers = {'Authorization': f"{self.auth.token['token_type']} {self.auth.access_token}"}
-        resp = webclient.get_request(url, headers=headers, params=params)
+        resp = webclient.get_request(url, headers=headers, params=params, timeout=self.timeout)
         return resp['data']
 
 
@@ -640,7 +641,7 @@ class ITMClient(object):
         endpoint = f'/v2/apis/notification/target-groups/{id_}'
         url = self.base_url + endpoint
         headers = {'Authorization': f"{self.auth.token['token_type']} {self.auth.access_token}",}
-        resp = webclient.post_request(url, headers=headers, json_data=target_group.as_dict(), method='PATCH')
+        resp = webclient.post_request(url, headers=headers, json_data=target_group.as_dict(), method='PATCH', timeout=self.timeout)
         return resp
 
 
@@ -667,7 +668,7 @@ class ITMClient(object):
         url = self.base_url + endpoint
         headers = {'Authorization': f"{self.auth.token['token_type']} {self.auth.access_token}",}
         data = [target_group.as_dict()]
-        resp = webclient.post_request(url, headers=headers, json_data=data, method='POST')
+        resp = webclient.post_request(url, headers=headers, json_data=data, method='POST', timeout=self.timeout)
         return resp
 
     def get_dictionaries(self, headers: dict={}, includes: str='*') -> list:
@@ -688,7 +689,7 @@ class ITMClient(object):
         url = self.base_url + endpoint
         params = {'includes': includes}
         headers = {'Authorization': f"{self.auth.token['token_type']} {self.auth.access_token}"}
-        resp = webclient.get_request(url, headers=headers, params=params)
+        resp = webclient.get_request(url, headers=headers, params=params, timeout=self.timeout)
         return resp['data']
 
 
@@ -713,7 +714,7 @@ class ITMClient(object):
         if include is not None:
             params['include'] = include
         headers = {'Authorization': f"{self.auth.token['token_type']} {self.auth.access_token}"}
-        resp = webclient.get_request(url, headers=headers, params=params)
+        resp = webclient.get_request(url, headers=headers, params=params, timeout=self.timeout)
         return resp['data']
 
 
@@ -736,7 +737,7 @@ class ITMClient(object):
         url = self.base_url + endpoint
         params = {'includes': includes}
         headers = {'Authorization': f"{self.auth.token['token_type']} {self.auth.access_token}"}
-        resp = webclient.get_request(url, headers=headers, params=params)
+        resp = webclient.get_request(url, headers=headers, params=params, timeout=self.timeout)
         return resp['data']
     
 
@@ -757,7 +758,7 @@ class ITMClient(object):
         endpoint = f'/v2/apis/ruler/configurations/dlp/dictionaries/{id_}'
         url = self.base_url + endpoint
         headers = {'Authorization': f"{self.auth.token['token_type']} {self.auth.access_token}",}
-        resp = webclient.post_request(url, headers=headers, json_data=dictionary.as_dict(), method='PATCH')
+        resp = webclient.post_request(url, headers=headers, json_data=dictionary.as_dict(), method='PATCH', timeout=self.timeout)
         return resp
 
 
@@ -778,7 +779,7 @@ class ITMClient(object):
         endpoint = '/v2/apis/ruler/configurations/dlp/dictionaries'
         url = self.base_url + endpoint
         headers = {'Authorization': f"{self.auth.token['token_type']} {self.auth.access_token}"}
-        resp = webclient.post_request(url, headers=headers, json_data=dictionary.as_dict(), method='POST')
+        resp = webclient.post_request(url, headers=headers, json_data=dictionary.as_dict(), method='POST', timeout=self.timeout)
         return resp
 
     def create_dictionaries(self, dictionaries: list=[], headers: dict={}) -> list:
@@ -798,7 +799,7 @@ class ITMClient(object):
         headers = {'Authorization': f"{self.auth.token['token_type']} {self.auth.access_token}"}
         dictionary_list = [d.as_dict() for d in dictionaries]
         data = { 'data': dictionary_list }
-        resp = webclient.post_request(url, headers=headers, json_data=data, method='PATCH')
+        resp = webclient.post_request(url, headers=headers, json_data=data, method='PATCH', timeout=self.timeout)
         return resp
 
 
@@ -818,7 +819,7 @@ class ITMClient(object):
         endpoint = f'/v2/apis/ruler/configurations/dlp/dictionaries/{id_}'
         url = self.base_url + endpoint
         headers = {'Authorization': f"{self.auth.token['token_type']} {self.auth.access_token}"}
-        resp = webclient.delete_request(url, headers=headers)
+        resp = webclient.delete_request(url, headers=headers, timeout=self.timeout)
         return resp
 
 
@@ -842,7 +843,7 @@ class ITMClient(object):
             }
         }
         headers['Authorization'] = f"{self.auth.token['token_type']} {self.auth.access_token}"
-        resp = webclient.post_request(url, headers=headers, json_data=data, method='PATCH')
+        resp = webclient.post_request(url, headers=headers, json_data=data, method='PATCH', timeout=self.timeout)
         return resp
 
 
@@ -864,7 +865,7 @@ class ITMClient(object):
         endpoint = '/v2/apis/ruler/configurations/dlp/detectors'
         url = self.base_url + endpoint
         headers['Authorization'] = f"{self.auth.token['token_type']} {self.auth.access_token}"
-        resp = webclient.get_request(url, headers=headers)
+        resp = webclient.get_request(url, headers=headers, timeout=self.timeout)
         return resp['data']
 
     def get_detector(self, id_: str, headers: dict={}) -> dict:
@@ -885,7 +886,7 @@ class ITMClient(object):
         endpoint = f'/v2/apis/ruler/configurations/dlp/detectors/{id_}'
         url = self.base_url + endpoint
         headers['Authorization'] = f"{self.auth.token['token_type']} {self.auth.access_token}"
-        resp = webclient.get_request(url, headers=headers)
+        resp = webclient.get_request(url, headers=headers, timeout=self.timeout)
         return resp
 
     def update_detector(self, id_: str, detector: Detector, headers: dict={}) -> dict:
@@ -908,7 +909,7 @@ class ITMClient(object):
         endpoint = f'/v2/apis/ruler/configurations/dlp/detectors/{id_}'
         url = self.base_url + endpoint
         headers['Authorization'] = f"{self.auth.token['token_type']} {self.auth.access_token}"
-        resp = webclient.post_request(url, headers=headers, json_data=detector.as_dict(), method='PATCH')
+        resp = webclient.post_request(url, headers=headers, json_data=detector.as_dict(), method='PATCH', timeout=self.timeout)
         return resp
 
     def create_detector(self, detector: Detector, headers: dict={}) -> dict:
@@ -929,7 +930,7 @@ class ITMClient(object):
         endpoint = '/v2/apis/ruler/configurations/dlp/detectors'
         url = self.base_url + endpoint
         headers['Authorization'] = f"{self.auth.token['token_type']} {self.auth.access_token}"
-        resp = webclient.post_request(url, headers=headers, json_data=detector.as_dict(), method='POST')
+        resp = webclient.post_request(url, headers=headers, json_data=detector.as_dict(), method='POST', timeout=self.timeout)
         return resp
 
     def get_detector_sets(self, headers: dict={}) -> list:
@@ -948,7 +949,7 @@ class ITMClient(object):
         endpoint = '/v2/apis/ruler/configurations/dlp/detectorsets'
         url = self.base_url + endpoint
         headers['Authorization'] = f"{self.auth.token['token_type']} {self.auth.access_token}"
-        resp = webclient.get_request(url, headers=headers)
+        resp = webclient.get_request(url, headers=headers, timeout=self.timeout)
         return resp['data']
 
     def get_detector_set(self, id_: str, headers: dict={}) -> dict:
@@ -969,7 +970,7 @@ class ITMClient(object):
         endpoint = f'/v2/apis/ruler/configurations/dlp/detectorsets/{id_}'
         url = self.base_url + endpoint
         headers['Authorization'] = f"{self.auth.token['token_type']} {self.auth.access_token}"
-        resp = webclient.get_request(url, headers=headers)
+        resp = webclient.get_request(url, headers=headers, timeout=self.timeout)
         return resp
 
     def update_detector_set(self, id_: str, detector_set: DetectorSet, headers: dict={}) -> dict:
@@ -992,7 +993,7 @@ class ITMClient(object):
         endpoint = f'/v2/apis/ruler/configurations/dlp/detectorsets/{id_}'
         url = self.base_url + endpoint
         headers['Authorization'] = f"{self.auth.token['token_type']} {self.auth.access_token}"
-        resp = webclient.post_request(url, headers=headers, json_data=detector_set.as_dict(), method='PATCH')
+        resp = webclient.post_request(url, headers=headers, json_data=detector_set.as_dict(), method='PATCH', timeout=self.timeout)
         return resp
 
     def create_detector_set(self, detector_set: DetectorSet, headers: dict={}) -> dict:
@@ -1013,7 +1014,7 @@ class ITMClient(object):
         endpoint = '/v2/apis/ruler/configurations/dlp/detectorsets'
         url = self.base_url + endpoint
         headers['Authorization'] = f"{self.auth.token['token_type']} {self.auth.access_token}"
-        resp = webclient.post_request(url, headers=headers, json_data=detector_set.as_dict(), method='POST')
+        resp = webclient.post_request(url, headers=headers, json_data=detector_set.as_dict(), method='POST', timeout=self.timeout)
         return resp
     
     def delete_detector_set(self, id_: str, headers: dict={}) -> dict:
@@ -1034,7 +1035,7 @@ class ITMClient(object):
         endpoint = f'/v2/apis/ruler/configurations/dlp/detectorsets/{id_}'
         url = self.base_url + endpoint
         headers['Authorization'] = f"{self.auth.token['token_type']} {self.auth.access_token}"
-        resp = webclient.delete_request(url, headers=headers)
+        resp = webclient.delete_request(url, headers=headers, timeout=self.timeout)
         return resp
 
     def get_smartids(self, headers: dict={}) -> list:
@@ -1053,7 +1054,7 @@ class ITMClient(object):
         endpoint = '/v2/apis/ruler/configurations/dlp/smartids'
         url = self.base_url + endpoint
         headers['Authorization'] = f"{self.auth.token['token_type']} {self.auth.access_token}"
-        resp = webclient.get_request(url, headers=headers)
+        resp = webclient.get_request(url, headers=headers, timeout=self.timeout)
         return resp['data']
 
     def publish_config(self, headers: dict={}, artifactID: str='activity', data: dict={}) -> dict:
@@ -1104,7 +1105,7 @@ class ITMClient(object):
         url = self.base_url + endpoint
         params['entityTypes'] = entity
         headers['Authorization'] = f"{self.auth.token['token_type']} {self.auth.access_token}"
-        resp = webclient.post_request(url, headers=headers, json_data=query, method='POST', params=params)
+        resp = webclient.post_request(url, headers=headers, json_data=query, method='POST', params=params, timeout=self.timeout)
         return resp
 
     def notification_search(self, query: dict, entity: str, params: dict={}, headers: dict={}) -> dict:
@@ -1132,7 +1133,7 @@ class ITMClient(object):
         url = self.base_url + endpoint
         params['entityTypes'] = entity
         headers['Authorization'] = f"{self.auth.token['token_type']} {self.auth.access_token}"
-        resp = webclient.post_request(url, headers=headers, json_data=query, method='POST', params=params)
+        resp = webclient.post_request(url, headers=headers, json_data=query, method='POST', params=params, timeout=self.timeout)
         return resp
 
     def ruler_search(self, query: str, entity: str, params: dict={}, headers: dict={}) -> dict:
@@ -1160,7 +1161,7 @@ class ITMClient(object):
         url = self.base_url + endpoint
         params['entityTypes'] = entity
         headers['Authorization'] = f"{self.auth.token['token_type']} {self.auth.access_token}"
-        resp = webclient.post_request(url, headers=headers, json_data=query, method='POST', params=params)
+        resp = webclient.post_request(url, headers=headers, json_data=query, method='POST', params=params, timeout=self.timeout)
         return resp
 
     def activity_search(self, query: dict, entity: str, params: dict={}, headers: dict={}) -> dict:
@@ -1188,7 +1189,7 @@ class ITMClient(object):
         url = self.base_url + endpoint
         params['entityTypes'] = entity
         headers['Authorization'] = f"{self.auth.token['token_type']} {self.auth.access_token}"
-        resp = webclient.post_request(url, headers=headers, json_data=query, method='POST', params=params)
+        resp = webclient.post_request(url, headers=headers, json_data=query, method='POST', params=params, timeout=self.timeout)
         return resp
     
     def registry_search(self, query: dict, entity: str, params: dict = None, headers: dict = None ) -> dict:
@@ -1221,5 +1222,5 @@ class ITMClient(object):
             headers = {}
         headers['Authorization'] = f"{self.auth.token['token_type']} {self.auth.access_token}"
 
-        resp = webclient.post_request(url, headers=headers, json_data=query, method='POST', params=params)
+        resp = webclient.post_request(url, headers=headers, json_data=query, method='POST', params=params, timeout=self.timeout)
         return resp
