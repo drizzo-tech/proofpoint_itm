@@ -40,9 +40,27 @@ class ITMClient(object):
         self.auth = itm_auth(config, verify=verify, scope=scope)
         self.timeout = kwargs.get('timeout', 10)
 
-    
+    def _prepare_params(self, defaults: dict, params: dict) -> dict:
+        """
+        Prepare parameters for GET request by merging defaults and provided parameters.
+
+        Args:
+            defaults (dict): Default parameters.
+            params (dict): Provided parameters.
+
+        Returns:
+            dict: Final parameters for the GET request.
+        """
+        if not params:
+            return defaults
+        else:
+            for key, value in defaults.items():
+                if key not in params.keys():
+                    params[key] = value
+            return params
+
     def get_endpoints(self, includes: str='*', kind: str='*', status: str='*',
-                      headers: dict={}, count: bool=False) -> dict:
+                      headers: dict={}, count: bool=False, params: dict={}) -> dict:
         """
         Fetches all endpoints of a given kind from the registry api
 
@@ -55,6 +73,12 @@ class ITMClient(object):
             status (str): 
                 Filter by agent status
                 Accepts: '*', HEALTHY, UNHEALTHY, UNREACHABLE, DEAD, INACTIVE
+            headers (dict):
+                Headers to include in GET request
+            count (bool):
+                Return count of endpoints only
+            params (dict):
+                Custom query parameters to include in GET request
 
         Returns:
             dict: A list of endpoint objects
@@ -62,13 +86,14 @@ class ITMClient(object):
         """
         endpoint = '/v2/apis/registry/instances'
         url = self.base_url + endpoint
-
-        params = {'limit': 99,
-                  'offset': 0,
-                  'includes': includes,
-                  'kind': kind,
-                  'status': status
-                 }
+        defaults = {
+            'limit': 99,
+            'offset': 0,
+            'includes': includes,
+            'kind': kind,
+            'status': status
+        }
+        params = self._prepare_params(defaults, params)
 
         headers = {'Authorization': f"{self.auth.token['token_type']} {self.auth.access_token}"}
 
@@ -93,7 +118,7 @@ class ITMClient(object):
         return endpoints
 
 
-    def get_rules(self, includes: str='*', headers: dict={}) -> list:
+    def get_rules(self, includes: str='*', headers: dict={}, params: dict={}) -> list:
         """ 
         Query for all rules in the depot API
 
@@ -103,6 +128,8 @@ class ITMClient(object):
             headers (dict): 
                 headers to include in the http request, if not provided
                 a default header will be created with auth info
+            params (dict):
+                Custom query parameters to include in GET request
 
         Returns: 
             list: A list of rules objects
@@ -110,13 +137,16 @@ class ITMClient(object):
         """
         endpoint = '/v2/apis/ruler/rules'
         url = self.base_url + endpoint
-        params = {'includes': includes}
+        
+        defaults = {'includes': includes}
+        params = self._prepare_params(defaults, params)
+
         headers = {'Authorization': f"{self.auth.token['token_type']} {self.auth.access_token}"}
         resp = webclient.get_request(url, headers=headers, params=params, timeout=self.timeout)
         return resp['data']
 
 
-    def get_rule(self, id_: str, includes: str='*', headers: dict={}) -> dict:
+    def get_rule(self, id_: str, includes: str='*', headers: dict={}, params: dict={}) -> dict:
         """
         Query for rule by ID in the depot API
 
@@ -128,6 +158,8 @@ class ITMClient(object):
             headers (dict): 
                 headers to include in the http request, if not provided
                 a default header will be created with auth info
+            params (dict):
+                Custom query parameters to include in GET request
 
         Returns: 
             dict: A dict of rule attributes
@@ -135,7 +167,9 @@ class ITMClient(object):
         """
         endpoint = f'/v2/apis/ruler/rules/{id_}'
         url = self.base_url + endpoint
-        params = {'includes': includes}
+        defaults = {'includes': includes}
+        params = self._prepare_params(defaults, params)
+        
         headers = {'Authorization': f"{self.auth.token['token_type']} {self.auth.access_token}"}
         resp = webclient.get_request(url, headers=headers, params=params, timeout=self.timeout)
         return resp
@@ -195,7 +229,7 @@ class ITMClient(object):
         return resp
 
 
-    def get_predicates(self, includes: str='*', headers: dict={}) -> list:
+    def get_predicates(self, includes: str='*', headers: dict={}, params: dict={}) -> list:
         """
         Query for all predicates in the depot API, does not return built-in
 
@@ -205,19 +239,23 @@ class ITMClient(object):
             headers (dict): 
                 headers to include in the http request, if not 
                 a default header will be created with auth info
+            params (dict):
+                Custom query parameters to include in GET request
 
         Returns: 
             list: A list of predicate objects
         """
         endpoint = '/v2/apis/depot/predicates'
         url = self.base_url + endpoint
-        params = {'includes': includes}
+        defaults = {'includes': includes}
+        params = self._prepare_params(defaults, params)
+
         headers = {'Authorization': f"{self.auth.token['token_type']} {self.auth.access_token}"}
         resp = webclient.get_request(url, headers=headers, params=params, timeout=self.timeout)
         return resp['data']
 
 
-    def get_predicate(self, id_: str, includes: str='*', headers: dict={}) -> dict:
+    def get_predicate(self, id_: str, includes: str='*', headers: dict={}, params: dict={}) -> dict:
         """
         Query for a single predicate by ID
 
@@ -229,19 +267,23 @@ class ITMClient(object):
             headers (dict): 
                 headers to include in the http request, if not provided
                 a default header will be created with auth info
+            params (dict):
+                Custom query parameters to include in GET request
 
         Returns:
             dict: A dict of predicate attributes
         """
         endpoint = f'/v2/apis/depot/predicates/{id_}'
         url = self.base_url + endpoint
-        params = {'includes': includes}
+        defaults = {'includes': includes}
+        params = self._prepare_params(defaults, params)
+
         headers = {'Authorization': f"{self.auth.token['token_type']} {self.auth.access_token}"}
         resp = webclient.get_request(url, headers=headers, params=params, timeout=self.timeout)
         return resp
 
 
-    def get_conditions(self, includes: str='*', headers: dict={}) -> list:
+    def get_conditions(self, includes: str='*', headers: dict={}, params: dict={}) -> list:
         """
         Query for all custom match predicates (user created) that are not auto
         created from rules
@@ -254,12 +296,16 @@ class ITMClient(object):
             headers (dict): 
                 headers to include in the http request, if not provided
                 a default header will be created with auth info
+            params (dict):
+                Custom query parameters to include in GET request
 
         Returns:
             list: Returns list of predicate objects
         """
         conditions = []
-        predicates = self.get_predicates(includes=includes, headers=headers)
+        defaults = {'includes': includes}
+        params = self._prepare_params(defaults, params)
+        predicates = self.get_predicates(params=params, headers=headers)
         for predicate in predicates:
             if predicate['kind'] == 'it:predicate:custom:match':
                 conditions.append(predicate)
@@ -342,7 +388,7 @@ class ITMClient(object):
         return resp
 
 
-    def get_tags(self, includes: str='*', headers: dict={}) -> list:
+    def get_tags(self, includes: str='*', headers: dict={}, params: dict={}) -> list:
         """
         Query for all tags in the depot API, does not return built-in tags
 
@@ -350,6 +396,8 @@ class ITMClient(object):
             includes (str): Comma-separated list of attributes to include, default is '*'.
             headers (dict): Headers to include in the HTTP request, if not provided, a default header
                 will be created with auth info.
+            params (dict):
+                Custom query parameters to include in GET request
 
         Returns: 
             list: A list of tags objects.
@@ -357,7 +405,9 @@ class ITMClient(object):
         """
         endpoint = '/v2/apis/depot/tags'
         url = self.base_url + endpoint
-        params = {'includes': includes}
+        defaults = {'includes': includes}
+        params = self._prepare_params(defaults, params)
+        
         headers = {'Authorization': f"{self.auth.token['token_type']} {self.auth.access_token}"}
         resp = webclient.get_request(url, headers=headers, params=params, timeout=self.timeout)
         return resp['data']
@@ -372,6 +422,8 @@ class ITMClient(object):
             includes (str): Comma-separated list of attributes to include. Default is '*'.
             headers (dict): Headers to include in the HTTP request. If not provided, a default header
                 will be created with auth info.
+            params (dict):
+                Custom query parameters to include in GET request
 
         Returns:
             dict: A dictionary of tag information.
@@ -379,7 +431,9 @@ class ITMClient(object):
         """
         endpoint = f'/v2/apis/depot/tags/{id_}'
         url = self.base_url + endpoint
-        params = {'includes': includes}
+        defaults = {'includes': includes}
+        params = self._prepare_params(defaults, params)
+
         headers = {'Authorization': f"{self.auth.token['token_type']} {self.auth.access_token}"}
         resp = webclient.get_request(url, headers=headers, params=params, timeout=self.timeout)
         return resp
@@ -429,7 +483,7 @@ class ITMClient(object):
         resp = webclient.post_request(url, headers=headers, json_data=tag.as_dict(), method='POST', timeout=self.timeout)
         return resp
 
-    def add_activity_tag(self, fqid, tag_id, headers: dict={}) -> dict:
+    def add_activity_tag(self, fqid, tag_id, headers: dict={}, params: dict={}) -> dict:
         """
         Add a tag to an activity.
 
@@ -438,13 +492,16 @@ class ITMClient(object):
             tag_id (str): The ID of the tag to be added.
             headers (dict, optional): Additional headers to include in the HTTP request.
                                     Defaults to an empty dictionary.
+            params (dict):
+                Custom query parameters to send with request
 
         Returns:
             dict: A dictionary containing the API response.
 
         """
         endpoint = f'/v2/apis/activity/events/{fqid}'
-        params = {'tagValue': tag_id}
+        defaults = {'tagValue': tag_id}
+        params = self._prepare_params(defaults, params)
         url = self.base_url + endpoint
         headers = {'Authorization': f"{self.auth.token['token_type']} {self.auth.access_token}"}
         resp = webclient.post_request(url, headers=headers, method='PATCH', params=params, timeout=self.timeout)
@@ -471,7 +528,7 @@ class ITMClient(object):
         resp = webclient.post_request(url, headers=headers, method='POST', json_data=body, timeout=self.timeout)
         return resp
 
-    def get_agent_policies(self, includes: str='*', headers: dict={}, params: dict=None) -> list:
+    def get_agent_policies(self, includes: str='*', headers: dict={}, params: dict={}) -> list:
         """
         Retrieves agent policies from the specified API endpoint.
 
@@ -487,14 +544,16 @@ class ITMClient(object):
         """
         endpoint = '/v2/apis/registry/policies'
         url = self.base_url + endpoint
-        if params is None:
-            params = {'limit': 99, 'offset': 0, 'includes': includes}
+        
+        defaults = {'limit': 99, 'offset': 0, 'includes': includes}
+        params = self._prepare_params(defaults, params)
+
         headers = {'Authorization': f"{self.auth.token['token_type']} {self.auth.access_token}"}
         resp = webclient.get_request(url, headers=headers, params=params, timeout=self.timeout)
         return resp['data']
 
 
-    def get_agent_policy(self, id_: str, includes: str='*', headers: dict={}, params: dict=None) -> dict:
+    def get_agent_policy(self, id_: str, includes: str='*', headers: dict={}, params: dict={}) -> dict:
         """
         Retrieves a specific agent policy based on the provided ID from the specified API endpoint.
 
@@ -511,8 +570,10 @@ class ITMClient(object):
         """
         endpoint = f'/v2/apis/registry/policies/{id_}'
         url = self.base_url + endpoint
-        if params is None:
-            params = {'limit': 99, 'offset': 0, 'includes': includes}
+        
+        defaults = {'limit': 99, 'offset': 0, 'includes': includes}
+        params = self._prepare_params(defaults, params)
+
         headers = {'Authorization': f"{self.auth.token['token_type']} {self.auth.access_token}"}
         resp = webclient.get_request(url, headers=headers, params=params, timeout=self.timeout)
         return resp['data']
@@ -605,13 +666,16 @@ class ITMClient(object):
             headers (dict): 
                 headers to include in the http request, if not provided
                 a default header will be created with auth info
+            params (dict):
+                Custom query parameters to include in request
 
         Returns: 
             list: A list containing notification policies
         """
         endpoint = '/v2/apis/notification/target-groups'
         url = self.base_url + endpoint
-        params = {'includes': includes}
+        defaults = {'includes': includes}
+        params = self._prepare_params(defaults, params)
         headers = {'Authorization': f"{self.auth.token['token_type']} {self.auth.access_token}"}
         resp = webclient.get_request(url, headers=headers, params=params, timeout=self.timeout)
         return resp['data']
@@ -671,7 +735,7 @@ class ITMClient(object):
         resp = webclient.post_request(url, headers=headers, json_data=data, method='POST', timeout=self.timeout)
         return resp
 
-    def get_dictionaries(self, headers: dict={}, includes: str='*') -> list:
+    def get_dictionaries(self, headers: dict={}, includes: str='*', params: dict={}) -> list:
         """
         Retrieve dictionaries from the API endpoint.
 
@@ -680,6 +744,8 @@ class ITMClient(object):
                 Defaults to an empty dictionary.
             includes (str, optional): A string specifying the entities to include in the response.
                 Defaults to '*', which includes all entities.
+            params (dict):
+                Custom query parameters to include in request
 
         Returns:
             list: A list containing the retrieved dictionaries.
@@ -687,13 +753,14 @@ class ITMClient(object):
         """
         endpoint = '/v2/apis/ruler/configurations/dlp/dictionaries'
         url = self.base_url + endpoint
-        params = {'includes': includes}
+        defaults = {'includes': includes}
+        params = self._prepare_params(defaults, params)
         headers = {'Authorization': f"{self.auth.token['token_type']} {self.auth.access_token}"}
         resp = webclient.get_request(url, headers=headers, params=params, timeout=self.timeout)
         return resp['data']
 
 
-    def get_dictionary(self, id_: str, headers: dict={}, include: str=None) -> dict:
+    def get_dictionary(self, id_: str, headers: dict={}, includes: str=None, params: dict={}) -> dict:
         """
         Retrieve a specific dictionary from the API endpoint.
 
@@ -701,8 +768,10 @@ class ITMClient(object):
             id_ (str): The ID of the dictionary to retrieve.
             headers (dict, optional): Additional headers to include in the HTTP request.
                 Defaults to an empty dictionary.
-            include (str, optional): A string specifying the entities to include in the response.
+            includes (str, optional): A string specifying the entities to include in the response.
                 Defaults to None.
+            params (dict):
+                Custom query parameters to include in request
 
         Returns:
             dict: A dictionary containing the retrieved dictionary.
@@ -710,15 +779,14 @@ class ITMClient(object):
         """
         endpoint = f'/v2/apis/ruler/configurations/dlp/dictionaries/{id_}'
         url = self.base_url + endpoint
-        params = {}
-        if include is not None:
-            params['include'] = include
+        defaults = {'include': includes} # include is different with this req
+        params = self._prepare_params(defaults, params)
         headers = {'Authorization': f"{self.auth.token['token_type']} {self.auth.access_token}"}
         resp = webclient.get_request(url, headers=headers, params=params, timeout=self.timeout)
         return resp['data']
 
 
-    def get_dictionary_terms(self, id_: str, headers: dict={}, includes: str='*') -> list:
+    def get_dictionary_terms(self, id_: str, headers: dict={}, includes: str='*', params: dict={}) -> list:
         """
         Retrieve terms from a specific dictionary in the API endpoint.
 
@@ -728,6 +796,8 @@ class ITMClient(object):
                 Defaults to an empty dictionary.
             includes (str, optional): A string specifying the entities to include in the response.
                 Defaults to '*', which includes all entities.
+            params (dict):
+                Custom query parameters to include in request
 
         Returns:
             list: A list containing the retrieved terms.
@@ -735,7 +805,8 @@ class ITMClient(object):
         """
         endpoint = f'/v2/apis/ruler/configurations/dlp/dictionaries/{id_}/entries'
         url = self.base_url + endpoint
-        params = {'includes': includes}
+        defaults = {'includes': includes}
+        params = self._prepare_params(defaults, params)
         headers = {'Authorization': f"{self.auth.token['token_type']} {self.auth.access_token}"}
         resp = webclient.get_request(url, headers=headers, params=params, timeout=self.timeout)
         return resp['data']
@@ -1103,7 +1174,8 @@ class ITMClient(object):
         """
         endpoint = '/v2/apis/depot/queries'
         url = self.base_url + endpoint
-        params['entityTypes'] = entity
+        defaults = {'entityTypes': entity}
+        params = self._prepare_params(defaults, params)
         headers['Authorization'] = f"{self.auth.token['token_type']} {self.auth.access_token}"
         resp = webclient.post_request(url, headers=headers, json_data=query, method='POST', params=params, timeout=self.timeout)
         return resp
@@ -1131,7 +1203,8 @@ class ITMClient(object):
         """
         endpoint = '/v2/apis/notification/queries'
         url = self.base_url + endpoint
-        params['entityTypes'] = entity
+        defaults = {'entityTypes': entity}
+        params = self._prepare_params(defaults, params)
         headers['Authorization'] = f"{self.auth.token['token_type']} {self.auth.access_token}"
         resp = webclient.post_request(url, headers=headers, json_data=query, method='POST', params=params, timeout=self.timeout)
         return resp
@@ -1159,7 +1232,8 @@ class ITMClient(object):
         """
         endpoint = '/v2/apis/ruler/queries'
         url = self.base_url + endpoint
-        params['entityTypes'] = entity
+        defaults = {'entityTypes': entity}
+        params = self._prepare_params(defaults, params)
         headers['Authorization'] = f"{self.auth.token['token_type']} {self.auth.access_token}"
         resp = webclient.post_request(url, headers=headers, json_data=query, method='POST', params=params, timeout=self.timeout)
         return resp
@@ -1187,12 +1261,13 @@ class ITMClient(object):
         """
         endpoint = '/v2/apis/activity/queries'
         url = self.base_url + endpoint
-        params['entityTypes'] = entity
+        defaults = {'entityTypes': entity}
+        params = self._prepare_params(defaults, params)
         headers['Authorization'] = f"{self.auth.token['token_type']} {self.auth.access_token}"
         resp = webclient.post_request(url, headers=headers, json_data=query, method='POST', params=params, timeout=self.timeout)
         return resp
     
-    def registry_search(self, query: dict, entity: str, params: dict = None, headers: dict = None ) -> dict:
+    def registry_search(self, query: dict, entity: str, params: dict = {}, headers: dict = None ) -> dict:
         """
         Performs a search query against the registry API
 
@@ -1214,9 +1289,8 @@ class ITMClient(object):
 
         """
         url = self.base_url + '/v2/apis/registry/queries'
-        if params is None:
-            params = {}
-        params['entityTypes'] = entity
+        defaults = {'entityTypes': entity}
+        params = self._prepare_params(defaults, params)
 
         if headers is None:
             headers = {}
