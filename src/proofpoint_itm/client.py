@@ -433,6 +433,26 @@ class ITMClient(object):
         resp = webclient.post_request(url, headers=headers, json_data=data, method='POST', timeout=self.timeout)
         return resp
 
+    def delete_predicate(self, id_, headers: dict={}):
+        """
+        Delete a predicate.
+
+        Args:
+            id_ (str): The ID of the object to delete.
+            headers (dict, optional): Additional headers to include in the HTTP request.
+                Defaults to an empty dictionary.
+
+        Returns:
+            dict: A dictionary containing the API response.
+
+        """
+        endpoint = f'/v2/apis/depot/predicates/{id_}'
+        url = self.base_url + endpoint
+        headers = {'Authorization': f"{self.auth.token['token_type']} {self.auth.access_token}"}
+        if self.development_mode:
+            return {'url': url, 'headers': headers, 'params': None}
+        resp = webclient.delete_request(url, headers=headers, timeout=self.timeout)
+        return resp
 
     def get_tags(self, includes: str='*', headers: dict={}, params: dict={}) -> list:
         """
