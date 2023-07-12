@@ -39,9 +39,10 @@ class ITMClient(object):
         self.client_id = config['client_id']
         self.tenant_id = config['tenant_id']
         self.base_url = f"https://{config['tenant_id']}.explore.proofpoint.com"
-        self.auth = itm_auth(config, verify=verify, scope=scope)
-        self.timeout = kwargs.get('timeout', 10)
         self.development_mode = development
+        self.auth = itm_auth(config, verify=verify, scope=scope, development=development)
+        self.timeout = kwargs.get('timeout', 10)
+        
 
     def _prepare_params(self, defaults: dict, params: dict) -> dict:
         """
