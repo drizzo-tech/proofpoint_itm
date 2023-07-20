@@ -633,7 +633,7 @@ class ITMClient(object):
         data = {'id': admin_id}
         if self.development_mode:
             return {'url': url, 'headers': headers, 'body': data}
-        resp = webclient.post_request(url, headers=headers, method='POST', json_data=data, timeout=self.timeout)
+        resp = webclient.post_request(url, headers=headers, method='PUT', json_data=data, timeout=self.timeout)
         return resp
 
     def get_agent_policies(self, includes: str='*', headers: dict=None, params: dict=None) -> list:
