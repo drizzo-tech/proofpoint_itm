@@ -53,7 +53,7 @@ class ITMClient(object):
             dict: Headers for the web request
         """
         if not headers:
-            headers = self._prepare_headers(headers)
+            headers = {'Authorization': f"{self.auth.token['token_type']} {self.auth.access_token}"}
         else:
             if 'Authorization' not in headers:
                 headers['Authorization'] = f"{self.auth.token['token_type']} {self.auth.access_token}"
