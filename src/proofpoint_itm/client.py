@@ -603,7 +603,7 @@ class ITMClient(object):
             dict: A dictionary containing the API response.
 
         """
-        endpoint = f'/v2/apis/activity/events/{fqid}'
+        endpoint = f'/v2/apis/activity/events/{fqid}/tags'
         defaults = {'tagValue': tag_id}
         params = self._prepare_params(defaults, params)
         url = self.base_url + endpoint
