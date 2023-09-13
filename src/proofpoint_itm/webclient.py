@@ -3,13 +3,24 @@ from urllib.request import urlopen, Request
 from urllib.parse import urlencode
 import json
 
-def get_request(url, headers=None, params=None, stream=False, timeout=10):
+def get_request(url, headers: dict=None, params: dict=None, stream: bool=False, timeout=10):
     """
-    Performs a get request
-    params = dictionary of parameters to be added to the end of url
-    headers = dictionary of headers to include in the request
+    Performs a GET request to a given URL.
 
-    Returns response as dict
+    Args:
+        url (str): 
+            The URL to which the GET request is made.
+        headers (dict, optional): 
+            Dictionary of headers to include in the request. Defaults to None.
+        params (dict, optional): 
+            Dictionary of parameters to be added to the end of the URL. Defaults to None.
+        stream (bool, optional): 
+            Boolean to indicate if the response should be streamed. Defaults to False.
+        timeout (int, optional): 
+            Maximum time to wait for a response. Defaults to 10.
+
+    Returns:
+        dict: Response from the request.
     """
     if params:
         url_params = urlencode(params)
@@ -21,12 +32,28 @@ def get_request(url, headers=None, params=None, stream=False, timeout=10):
 
 def post_request(url, headers=None, data=None, json_data=None, method='POST', params={}, stream=False ,timeout=10):
     """
-    perform a post request
-    pass headers/data as standard python dictionary
-    use json_data instead of data if json encoded POST/PUT/PATCH
-    override method with PUT or PATCH if desired
+    Performs a POST request to a given URL.
 
-    Returns response as dict
+    Args:
+        url (str): 
+            The URL to which the POST request is made.
+        headers (dict, optional): 
+            Dictionary of headers to include in the request. Defaults to None.
+        data (dict, optional): 
+            Data to be sent in the body of the request. Defaults to None.
+        json_data (dict, optional): 
+            JSON-encoded data to be sent in the body of the request. Use this if sending JSON. Defaults to None.
+        method (str, optional): 
+            The HTTP method to be used. Can be overridden to 'PUT' or 'PATCH'. Defaults to 'POST'.
+        params (dict, optional): 
+            Dictionary of parameters to be added to the end of the URL. Defaults to an empty dictionary.
+        stream (bool, optional): 
+            Boolean to indicate if the response should be streamed. Defaults to False.
+        timeout (int, optional): 
+            Maximum time to wait for a response. Defaults to 10.
+
+    Returns:
+        dict: Response from the request.
     """
     if params:
         url_params = urlencode(params)
@@ -48,11 +75,20 @@ def post_request(url, headers=None, data=None, json_data=None, method='POST', pa
 
 def delete_request(url, headers=None, params=None, timeout=10):
     """
-    Performs a delete request
-    params = dictionary of parameters to be added to the end of url
-    headers = dictionary of headers to include in the request
+    Performs a DELETE request to a given URL.
 
-    Returns response as dict
+    Args:
+        url (str): 
+            The URL to which the DELETE request is made.
+        headers (dict, optional): 
+            Dictionary of headers to include in the request. Defaults to None.
+        params (dict, optional): 
+            Dictionary of parameters to be added to the end of the URL. Defaults to None.
+        timeout (int, optional): 
+            Maximum time to wait for a response. Defaults to 10.
+
+    Returns:
+        dict: Response from the request.
     """
     if params:
         url_params = urlencode(params)
@@ -63,23 +99,36 @@ def delete_request(url, headers=None, params=None, timeout=10):
 
 def make_request(url, headers=None, data=None, method=None, stream=False, timeout=10):
     """
-    creates and submits the request
+    Creates and submits the request based on the provided parameters.
 
-    returns response as dict
+    Args:
+        url (str): 
+            The URL to which the request is made.
+        headers (dict, optional): 
+            Dictionary of headers to include in the request. Defaults to None.
+        data (dict or bytes, optional): 
+            Data to be sent in the body of the request. Defaults to None.
+        method (str, optional): 
+            The HTTP method to be used. Defaults to None.
+        stream (bool, optional): 
+            Boolean to indicate if the response should be streamed. Defaults to False.
+        timeout (int, optional): 
+            Maximum time to wait for a response. Defaults to 10.
+
+    Returns:
+        dict: Response from the request.
     """
+    
     request = Request(url, headers=headers or {}, data=data, method=method)
     try:
         with urlopen(request, timeout=timeout) as response:
-            if stream == True:
-                data = [json.loads(line) for line in response.readlines()]
-                return data
+            if stream:
+                return [json.loads(line) for line in response.readlines()]
             else:
-                body = response.read()
-                return json.loads(body)
+                return json.loads(response.read())
     except HTTPError as error:
         print(error.status, error.reason)
-        body = error.read().decode()
-        print(json.loads(body))
+        print(json.loads(error.read().decode()))
     except URLError as error:
         print(error.reason)
     except TimeoutError:
