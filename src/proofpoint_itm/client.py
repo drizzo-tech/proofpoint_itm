@@ -1416,7 +1416,7 @@ class ITMClient(object):
         resp = webclient.post_request(url, headers=headers, json_data=query, method='POST', params=params, timeout=self.timeout)
         return resp
 
-    def activity_search(self, query: dict, entity: str, params: dict=None, headers: dict=None) -> dict:
+    def activity_search(self, query: dict, entity: str, params: dict=None, headers: dict=None, stream: bool=False) -> dict:
         """
         Performs a search query against the activity API
 
@@ -1444,10 +1444,10 @@ class ITMClient(object):
         headers = self._prepare_headers(headers)
         if self.development_mode:
             return {'url': url, 'headers': headers, 'params': params, 'body': query}
-        resp = webclient.post_request(url, headers=headers, json_data=query, method='POST', params=params, timeout=self.timeout)
+        resp = webclient.post_request(url, headers=headers, json_data=query, method='POST', params=params, stream=stream, timeout=self.timeout)
         return resp
     
-    def registry_search(self, query: dict, entity: str, params: dict=None, headers: dict=None) -> dict:
+    def registry_search(self, query: dict, entity: str, params: dict=None, headers: dict=None, stream: bool=False) -> dict:
         """
         Performs a search query against the registry API
 
@@ -1475,5 +1475,5 @@ class ITMClient(object):
 
         if self.development_mode:
             return {'url': url, 'headers': headers, 'params': params, 'body': query}
-        resp = webclient.post_request(url, headers=headers, json_data=query, method='POST', params=params, timeout=self.timeout)
+        resp = webclient.post_request(url, headers=headers, json_data=query, method='POST', params=params, stream=stream, timeout=self.timeout)
         return resp
