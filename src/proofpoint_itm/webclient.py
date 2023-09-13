@@ -3,7 +3,7 @@ from urllib.request import urlopen, Request
 from urllib.parse import urlencode
 import json
 
-def get_request(url, headers=None, params=None, timeout=10):
+def get_request(url, headers=None, params=None, stream=False, timeout=10):
     """
     Performs a get request
     params = dictionary of parameters to be added to the end of url
@@ -19,7 +19,7 @@ def get_request(url, headers=None, params=None, timeout=10):
     return resp
 
 
-def post_request(url, headers=None, data=None, json_data=None, method='POST', params={}, timeout=10):
+def post_request(url, headers=None, data=None, json_data=None, method='POST', params={}, stream=False ,timeout=10):
     """
     perform a post request
     pass headers/data as standard python dictionary
@@ -40,7 +40,10 @@ def post_request(url, headers=None, data=None, json_data=None, method='POST', pa
         data = urlencode(data)
         data = data.encode('utf-8')
 
-    resp = make_request(url, headers=headers, data=data, method=method, timeout=timeout)
+    if stream == True:
+        headers['Accept'] = 'application/jsonl'
+
+    resp = make_request(url, headers=headers, data=data, method=method, timeout=timeout, stream=stream)
     return resp
 
 def delete_request(url, headers=None, params=None, timeout=10):
@@ -58,7 +61,7 @@ def delete_request(url, headers=None, params=None, timeout=10):
     resp = make_request(url, headers=headers, method='DELETE', timeout=timeout)
     return resp
 
-def make_request(url, headers=None, data=None, method=None, timeout=10):
+def make_request(url, headers=None, data=None, method=None, stream=False, timeout=10):
     """
     creates and submits the request
 
@@ -67,8 +70,12 @@ def make_request(url, headers=None, data=None, method=None, timeout=10):
     request = Request(url, headers=headers or {}, data=data, method=method)
     try:
         with urlopen(request, timeout=timeout) as response:
-            body = response.read()
-            return json.loads(body)
+            if stream == True:
+                data = [json.loads(line) for line in response.readlines()]
+                return data
+            else:
+                body = response.read()
+                return json.loads(body)
     except HTTPError as error:
         print(error.status, error.reason)
         body = error.read().decode()
