@@ -1432,6 +1432,8 @@ class ITMClient(object):
             headers (dict):
                 Headers to include in the http request, if not provided
                 a default header will be created with auth info
+            stream (bool):
+                Flag to invoke the streaming response
 
         Returns:
             dict: A dictionary containing the API response.
@@ -1463,6 +1465,8 @@ class ITMClient(object):
             headers (dict):
                 Headers to include in the http request, if not provided
                 a default header will be created with auth info
+            stream (bool):
+                Flag to invoke the streaming response
 
         Returns:
             dict: A dictionary containing the API response.
