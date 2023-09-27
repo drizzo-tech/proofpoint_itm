@@ -3,7 +3,7 @@ import json
 from proofpoint_itm import ITMClient
 
 # read in the config settings
-with open('./dev/settings.json', 'r') as f:
+with open('settings.json', 'r') as f:
     settings = json.loads(f.read())
 
 
