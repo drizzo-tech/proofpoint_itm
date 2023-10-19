@@ -707,7 +707,7 @@ class ITMClient(object):
         if self.development_mode:
             return {'url': url, 'headers': headers, 'params': params}
         resp = webclient.get_request(url, headers=headers, params=params, timeout=self.timeout)
-        return resp['data']
+        return resp
 
 
     def update_agent_policy(self, id_, policy: AgentPolicy, headers: dict=None, test: bool=False) -> dict:
