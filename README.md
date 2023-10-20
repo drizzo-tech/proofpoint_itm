@@ -22,6 +22,9 @@ itm_client = ITMClient(
 )
 ```
 
+## Important changes:
+v0.8.0 - activity_search() now uses a different backend API call that requires a different search query format. Any previous searches will need to be recreated in the new format. Generate a new exploration and view the query to see the new format.
+
 ## Documentation
 
 General documentation can be found here: [proofpoint_itm documentation](https://proofpoint-itm.readthedocs.io/en/latest/index.html)

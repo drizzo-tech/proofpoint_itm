@@ -79,22 +79,19 @@ class ITMClient(object):
                     params[key] = value
             return params
 
-    def get_endpoints(self, includes: str='*', kind: str='*', status: str='*',
-                      headers: dict=None, count: bool=False, params: dict=None) -> dict:
+    def get_endpoints(self, query: dict=None, count: bool=False, params: dict=None,
+                      days: int=3, kind: str="*") -> dict:
         """
         Fetches all endpoints of a given kind from the registry api
 
         Args:
-            includes (str):
-                List of attributes to return, defaults to '*'
+            query (dict):
+                Query to send to the registry API, defaults agents reporting in the last 3 days
+            days (int):
+                Number of days to query for, defaults to 3
             kind (str): 
                 Type of agent to return,
                 Accepts '*', 'agent:saas', or 'updater:saas', defaults to '*'
-            status (str): 
-                Filter by agent status
-                Accepts: '*', HEALTHY, UNHEALTHY, UNREACHABLE, DEAD, INACTIVE
-            headers (dict):
-                Headers to include in web request
             count (bool):
                 Return count of endpoints only
             params (dict):
@@ -104,37 +101,59 @@ class ITMClient(object):
             dict: A list of endpoint objects
 
         """
-        endpoint = '/v2/apis/registry/instances'
-        url = self.base_url + endpoint
-        defaults = {
-            'limit': 99,
-            'offset': 0,
-            'includes': includes,
-            'kind': kind,
-            'status': status
+        range_query = {
+            "range": {
+                "event.observedAt": {
+                    "gte": f"now-{str(days)}d",
+                    "lt": "now"
+                }
+            }
         }
-        params = self._prepare_params(defaults, params)
-        headers = self._prepare_headers(headers)
-        if self.development_mode:
-            return {'url': url, 'headers': headers, 'params': params}
-        endpoints = []
-        resp = webclient.get_request(
-                url, headers=headers, params=params, timeout=self.timeout)
-        total = resp['_meta']['stats']['total']
-
-        if count:
-            return total
-
-        endpoints += resp['data']
-        retrieved = len(endpoints)
-
-        while retrieved < total:
-            params['offset'] = params['offset'] + 100
-            resp = webclient.get_request(
-                    url, headers=headers, params=params, timeout=self.timeout)
-            endpoints += resp['data']
-            retrieved = len(endpoints)
+        must_query = [range_query]
         
+        kind_query = {
+            "match_phrase": {
+                "component.kind": {
+                    "query": f"{kind}"
+                }
+            }
+        }
+        if kind == 'agent:saas' or kind == 'updater:saas':
+            must_query.append(kind_query)
+
+        unknown_version = {
+            "match_phrase": {
+                "component.version": {
+                    "query": "unknown"
+                }
+            }
+        }
+        unregistered_status = {
+            "match_phrase": {
+                "component.status.code": {
+                    "query": "it:component:status:unregistered"
+                }
+            }
+        }
+        picp_component = {
+            "match_phrase": {
+                "component.kind": {
+                    "query": "feeder:picp"
+                }
+            }
+        }
+        must_not_query = [unknown_version, unregistered_status, picp_component]
+
+        if query is None:
+            query = {
+                "query": {
+                    "bool": {
+                        "must": must_query,
+                        "must_not": must_not_query
+                    }
+                }
+            }        
+        endpoints = self.registry_search(query, 'component', params=params, stream=True)
         return endpoints
 
 
@@ -688,7 +707,7 @@ class ITMClient(object):
         if self.development_mode:
             return {'url': url, 'headers': headers, 'params': params}
         resp = webclient.get_request(url, headers=headers, params=params, timeout=self.timeout)
-        return resp['data']
+        return resp
 
 
     def update_agent_policy(self, id_, policy: AgentPolicy, headers: dict=None, test: bool=False) -> dict:
@@ -1439,7 +1458,7 @@ class ITMClient(object):
             dict: A dictionary containing the API response.
 
         """
-        endpoint = '/v2/apis/activity/queries'
+        endpoint = '/v2/apis/activity/event-queries'
         url = self.base_url + endpoint
         defaults = {'entityTypes': entity}
         params = self._prepare_params(defaults, params)
