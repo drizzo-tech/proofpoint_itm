@@ -1458,7 +1458,7 @@ class ITMClient(object):
             dict: A dictionary containing the API response.
 
         """
-        endpoint = '/v2/apis/activity/queries'
+        endpoint = '/v2/apis/activity/event-queries'
         url = self.base_url + endpoint
         defaults = {'entityTypes': entity}
         params = self._prepare_params(defaults, params)
