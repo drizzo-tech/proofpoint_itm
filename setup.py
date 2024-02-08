@@ -24,6 +24,6 @@ setup(name='proofpoint_itm',
     package_dir={'': 'src'},
     packages=find_packages(where='src'),
     python_requires='>=3.6, <4',
-    install_requires=[],
+    install_requires=[requests],
     keywords='Proofpoint ITM, Proofpoint, ITM, ObserveIT'
 )
