@@ -796,7 +796,7 @@ class ITMClient(object):
         return resp
 
 
-    def get_notification_policies(self, includes: str='*', headers: dict=None) -> list:
+    def get_notification_policies(self, includes: str='*', headers: dict=None, params: dict={}) -> list:
         """
         Query for all notification policies in the notifications API
 
