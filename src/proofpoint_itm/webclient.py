@@ -59,7 +59,7 @@ def post_request(url, headers=None, data=None, json_data=None, method='POST', pa
         url_params = urlencode(params)
         url = url + '?' + url_params
 
-    if json_data:
+    if json_data is not None:
         headers['Content-Type'] = 'application/json; charset=utf-8'
         data = json.dumps(json_data)
         data = data.encode('utf-8')
