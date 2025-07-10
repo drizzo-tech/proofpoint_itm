@@ -287,7 +287,7 @@ class Detector:
         try:
             self.category = data["category"]["id"]
         except KeyError:
-            print(f"Could not find category id for detector: {self.name}")
+            pass
 
     def as_dict(self):
         """
@@ -333,7 +333,7 @@ class DetectorSet:
         try:
             self.category = data["category"]["id"]
         except KeyError:
-            print(f"Could not find category id for detector: {self.name}")
+            pass
 
     def as_dict(self):
         """
