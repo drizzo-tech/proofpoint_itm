@@ -223,7 +223,7 @@ class ITMClient(object):
             dict: A dict of rule attributes
 
         """
-        endpoint = "ruler/rules/{id_}"
+        endpoint = f"ruler/rules/{id_}"
         defaults = {"includes": includes}
         params = self._prepare_params(defaults, params)
 
@@ -242,7 +242,7 @@ class ITMClient(object):
         )
         resp.raise_for_status()
 
-        return resp
+        return resp.json()
 
     def update_rule(self, id_: str, rule: Rule, headers: dict = None, test: bool = False) -> dict:
         """
@@ -265,8 +265,7 @@ class ITMClient(object):
         if test:
             return {"id": str(uuid.uuid4())}
 
-        endpoint = "ruler/rules/{id_}"
-        headers = self._prepare_headers(headers)
+        endpoint = f"ruler/rules/{id_}"
         data = rule.as_dict()
 
         if self.development_mode:
@@ -280,7 +279,7 @@ class ITMClient(object):
         )
         resp.raise_for_status()
 
-        return resp
+        return resp.json()
 
     def create_rule(self, rule: Rule, headers: dict = None, test=False) -> dict:
         """Create new rule
@@ -316,7 +315,7 @@ class ITMClient(object):
         )
         resp.raise_for_status()
 
-        return resp
+        return resp.json()
 
     def delete_rule(self, id_, headers: dict = None):
         """
@@ -338,7 +337,7 @@ class ITMClient(object):
         resp = self.session.delete(self.build_url(endpoint), headers=headers, timeout=self.timeout)
         resp.raise_for_status()
 
-        return resp
+        return resp.json()
 
     def get_predicates(self, includes: str = "*", headers: dict = None, params: dict = None) -> list:
         """
@@ -414,7 +413,7 @@ class ITMClient(object):
         )
         resp.raise_for_status()
 
-        return resp
+        return resp.json()
 
     def get_conditions(self, includes: str = "*", headers: dict = None, params: dict = None) -> list:
         """
@@ -487,7 +486,7 @@ class ITMClient(object):
         resp = self.session.patch(self.build_url(endpoint), headers=headers, json=data, timeout=self.timeout)
         resp.raise_for_status()
 
-        return resp
+        return resp.json()
 
     def overwrite_predicate(self, id_, predicate: Predicate, headers: dict = None, test: bool = False) -> dict:
         """
@@ -516,7 +515,7 @@ class ITMClient(object):
         resp = self.session.put(self.build_url(endpoint), headers=headers, json=data, timeout=self.timeout)
         resp.raise_for_status()
 
-        return resp
+        return resp.json()
 
     def create_predicate(self, predicate: Predicate, headers: dict = None, test: bool = False) -> dict:
         """
@@ -546,7 +545,7 @@ class ITMClient(object):
         resp = self.session.post(self.build_url(endpoint), headers=headers, json=data, timeout=self.timeout)
         resp.raise_for_status()
 
-        return resp
+        return resp.json()
 
     def delete_predicate(self, id_, headers: dict = None):
         """
@@ -569,7 +568,7 @@ class ITMClient(object):
         resp = self.session.delete(self.build_url(endpoint), headers=headers, timeout=self.timeout)
         resp.raise_for_status()
 
-        return resp
+        return resp.json()
 
     def get_tags(self, includes: str = "*", headers: dict = None, params: dict = None) -> list:
         """
@@ -642,7 +641,7 @@ class ITMClient(object):
         )
         resp.raise_for_status()
 
-        return resp
+        return resp.json()
 
     def update_tag(self, id_: str, tag: Tag, headers: dict = None, test: bool = False) -> dict:
         """
@@ -668,10 +667,10 @@ class ITMClient(object):
         if self.development_mode:
             return {"url": self.build_url(endpoint), "headers": headers, "body": data}
 
-        resp = self.session.put(self.build_url(endpoint), headers=headers, json=data, timeout=self.timeout)
+        resp = self.session.patch(self.build_url(endpoint), headers=headers, json=data, timeout=self.timeout)
         resp.raise_for_status()
 
-        return resp
+        return resp.json()
 
     def create_tag(self, tag: Tag, headers: dict = None, test: bool = False) -> dict:
         """
@@ -699,7 +698,7 @@ class ITMClient(object):
         resp = self.session.post(self.build_url(endpoint), headers=headers, json=data, timeout=self.timeout)
         resp.raise_for_status()
 
-        return resp
+        return resp.json()
 
     def add_activity_tag(self, fqid, tag_id, headers: dict = None, params: dict = None) -> dict:
         """
@@ -736,7 +735,7 @@ class ITMClient(object):
         )
         resp.raise_for_status()
 
-        return resp
+        return resp.json()
 
     def add_activity_assignee(self, fqid, admin_id, headers: dict = None) -> dict:
         """
@@ -761,7 +760,7 @@ class ITMClient(object):
         resp = self.session.put(self.build_url(endpoint), headers=headers, json=data, timeout=self.timeout)
         resp.raise_for_status()
 
-        return resp
+        return resp.json()
 
     def get_agent_policies(self, includes: str = "*", headers: dict = None, params: dict = None) -> list:
         """
@@ -797,7 +796,7 @@ class ITMClient(object):
         )
         resp.raise_for_status()
 
-        return resp["data"]
+        return resp.json()
 
     def get_agent_policy(self, id_: str, includes: str = "*", headers: dict = None, params: dict = None) -> dict:
         """
@@ -834,7 +833,7 @@ class ITMClient(object):
         )
         resp.raise_for_status()
 
-        return resp
+        return resp.json()
 
     def update_agent_policy(self, id_, policy: AgentPolicy, headers: dict = None, test: bool = False) -> dict:
         """
@@ -866,7 +865,7 @@ class ITMClient(object):
         resp = self.session.patch(self.build_url(endpoint), headers=headers, json=data, timeout=self.timeout)
         resp.raise_for_status()
 
-        return resp
+        return resp.json()
 
     def overwrite_agent_policy(self, id_, policy: AgentPolicy, headers: dict = None, test: bool = False) -> dict:
         """
@@ -898,7 +897,7 @@ class ITMClient(object):
         resp = self.session.put(self.build_url(endpoint), headers=headers, json=data, timeout=self.timeout)
         resp.raise_for_status()
 
-        return resp
+        return resp.json()
 
     def create_agent_policy(self, policy: AgentPolicy, headers: dict = None, test: bool = False) -> dict:
         """
@@ -928,7 +927,7 @@ class ITMClient(object):
         resp = self.session.post(self.build_url(endpoint), headers=headers, json=data, timeout=self.timeout)
         resp.raise_for_status()
 
-        return resp
+        return resp.json()
 
     def get_notification_policies(self, includes: str = "*", headers: dict = None, params: dict = {}) -> list:
         """
@@ -956,7 +955,7 @@ class ITMClient(object):
         resp = self.session.get(self.build_url(endpoint), headers=headers, params=params, timeout=self.timeout)
         resp.raise_for_status()
 
-        return resp["data"]
+        return resp.json()
 
     def update_notification_policy(
         self,
@@ -995,7 +994,7 @@ class ITMClient(object):
         resp = self.session.patch(self.build_url(endpoint), headers=headers, json=data, timeout=self.timeout)
         resp.raise_for_status()
 
-        return resp
+        return resp.json()
 
     def create_notification_policy(self, target_group: TargetGroup, headers: dict = None, test: bool = False) -> dict:
         """Create new notification policy (target-group)
@@ -1026,7 +1025,7 @@ class ITMClient(object):
         resp = self.session.post(self.build_url(endpoint), headers=headers, json=data, timeout=self.timeout)
         resp.raise_for_status()
 
-        return resp
+        return resp.json()
 
     def get_dictionaries(self, headers: dict = None, includes: str = "*", params: dict = None) -> list:
         """
@@ -1054,7 +1053,7 @@ class ITMClient(object):
         resp = self.session.get(self.build_url(endpoint), headers=headers, params=params, timeout=self.timeout)
         resp.raise_for_status()
 
-        return resp["data"]
+        return resp.json()
 
     def get_dictionary(self, id_: str, headers: dict = None, includes: str = None, params: dict = None) -> dict:
         """
@@ -1083,7 +1082,7 @@ class ITMClient(object):
         resp = self.session.get(self.build_url(endpoint), headers=headers, params=params, timeout=self.timeout)
         resp.raise_for_status()
 
-        return resp["data"]
+        return resp.json()
 
     def get_dictionary_terms(self, id_: str, headers: dict = None, includes: str = "*", params: dict = None) -> list:
         """
@@ -1112,7 +1111,7 @@ class ITMClient(object):
         resp = self.session.get(self.build_url(endpoint), headers=headers, params=params, timeout=self.timeout)
         resp.raise_for_status()
 
-        return resp["data"]
+        return resp.json()
 
     def update_dictionary(self, id_: str, dictionary: Dictionary, headers: dict = None) -> dict:
         """
@@ -1137,7 +1136,7 @@ class ITMClient(object):
         resp = self.session.patch(self.build_url(endpoint), headers=headers, json=data, timeout=self.timeout)
         resp.raise_for_status()
 
-        return resp
+        return resp.json()
 
     def create_dictionary(self, dictionary: Dictionary, headers: dict = None) -> dict:
         """
@@ -1162,7 +1161,7 @@ class ITMClient(object):
         resp = self.session.post(self.build_url(endpoint), headers=headers, json=data, timeout=self.timeout)
         resp.raise_for_status()
 
-        return resp
+        return resp.json()
 
     def create_dictionaries(self, dictionaries: list[Dictionary], headers: dict = None) -> list:
         """
@@ -1185,7 +1184,7 @@ class ITMClient(object):
         resp = self.session.patch(self.build_url(endpoint), headers=headers, json=data, timeout=self.timeout)
         resp.raise_for_status()
 
-        return resp
+        return resp.json()
 
     def delete_dictionary(self, id_: str, headers: dict = None) -> dict:
         """
@@ -1208,7 +1207,7 @@ class ITMClient(object):
         resp = self.session.delete(self.build_url(endpoint), headers=headers, timeout=self.timeout)
         resp.raise_for_status()
 
-        return resp
+        return resp.json()
 
     def update_event_workflow(self, fqid: str, status: str, headers: dict = None) -> dict:
         """Update workflow status of an alert/incident
@@ -1231,7 +1230,7 @@ class ITMClient(object):
         resp = self.session.patch(self.build_url(endpoint), headers=headers, json=data, timeout=self.timeout)
         resp.raise_for_status()
 
-        return resp
+        return resp.json()
 
     def get_detectors(self, headers: dict = None) -> list:
         """
@@ -1256,7 +1255,7 @@ class ITMClient(object):
         resp = self.session.get(self.build_url(endpoint), headers=headers, timeout=self.timeout)
         resp.raise_for_status()
 
-        return resp["data"]
+        return resp.json()
 
     def get_detector(self, id_: str, headers: dict = None) -> dict:
         """
@@ -1281,7 +1280,7 @@ class ITMClient(object):
         resp = self.session.get(self.build_url(endpoint), headers=headers, timeout=self.timeout)
         resp.raise_for_status()
 
-        return resp
+        return resp.json()
 
     def update_detector(self, id_: str, detector: Detector, headers: dict = None) -> dict:
         """
@@ -1309,7 +1308,7 @@ class ITMClient(object):
         resp = self.session.patch(self.build_url(endpoint), headers=headers, json=data, timeout=self.timeout)
         resp.raise_for_status()
 
-        return resp
+        return resp.json()
 
     def create_detector(self, detector: Detector, headers: dict = None) -> dict:
         """
@@ -1335,7 +1334,7 @@ class ITMClient(object):
         resp = self.session.post(self.build_url(endpoint), headers=headers, json=data, timeout=self.timeout)
         resp.raise_for_status()
 
-        return resp
+        return resp.json()
 
     def get_detector_sets(self, headers: dict = None) -> list:
         """
@@ -1358,7 +1357,7 @@ class ITMClient(object):
         resp = self.session.get(self.build_url(endpoint), headers=headers, timeout=self.timeout)
         resp.raise_for_status()
 
-        return resp["data"]
+        return resp.json()
 
     def get_detector_set(self, id_: str, headers: dict = None) -> dict:
         """
@@ -1383,7 +1382,7 @@ class ITMClient(object):
         resp = self.session.get(self.build_url(endpoint), headers=headers, timeout=self.timeout)
         resp.raise_for_status()
 
-        return resp
+        return resp.json()
 
     def update_detector_set(self, id_: str, detector_set: DetectorSet, headers: dict = None) -> dict:
         """
@@ -1411,7 +1410,7 @@ class ITMClient(object):
         resp = self.session.patch(self.build_url(endpoint), headers=headers, json=data, timeout=self.timeout)
         resp.raise_for_status()
 
-        return resp
+        return resp.json()
 
     def create_detector_set(self, detector_set: DetectorSet, headers: dict = None) -> dict:
         """
@@ -1437,7 +1436,7 @@ class ITMClient(object):
         resp = self.session.post(self.build_url(endpoint), headers=headers, json=data, timeout=self.timeout)
         resp.raise_for_status()
 
-        return resp
+        return resp.json()
 
     def delete_detector_set(self, id_: str, headers: dict = None) -> dict:
         """
@@ -1462,7 +1461,7 @@ class ITMClient(object):
         resp = self.session.delete(self.build_url(endpoint), headers=headers, timeout=self.timeout)
         resp.raise_for_status()
 
-        return resp
+        return resp.json()
 
     def get_smartids(self, headers: dict = None) -> list:
         """
@@ -1485,7 +1484,7 @@ class ITMClient(object):
         resp = self.session.get(self.build_url(endpoint), headers=headers, timeout=self.timeout)
         resp.raise_for_status()
 
-        return resp["data"]
+        return resp.json()
 
     def publish_config(self, headers: dict = None, artifactID: str = "activity", data: dict = None) -> dict:
         """
@@ -1511,7 +1510,7 @@ class ITMClient(object):
             return {"url": self.build_url(endpoint), "headers": headers, "body": data}
 
         resp = self.session.put(self.build_url(endpoint), headers=headers, json=data)
-        return resp
+        return resp.json()
 
     def depot_search(self, query: dict, entity: str, params: dict = None, headers: dict = None) -> dict:
         """
@@ -1550,7 +1549,7 @@ class ITMClient(object):
         )
         resp.raise_for_status()
 
-        return resp
+        return resp.json()
 
     def notification_search(self, query: dict, entity: str, params: dict = None, headers: dict = None) -> dict:
         """
@@ -1589,7 +1588,7 @@ class ITMClient(object):
         )
         resp.raise_for_status()
 
-        return resp
+        return resp.json()
 
     def ruler_search(self, query: str, entity: str, params: dict = None, headers: dict = None) -> dict:
         """
@@ -1628,7 +1627,7 @@ class ITMClient(object):
         )
         resp.raise_for_status()
 
-        return resp
+        return resp.json()
 
     def activity_search(
         self,
@@ -1681,7 +1680,7 @@ class ITMClient(object):
         )
         resp.raise_for_status()
 
-        return resp
+        return resp.json()
 
     def registry_search(
         self,
@@ -1734,4 +1733,4 @@ class ITMClient(object):
         )
         resp.raise_for_status()
 
-        return resp
+        return resp.json()
