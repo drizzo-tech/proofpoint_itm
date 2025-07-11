@@ -17,10 +17,20 @@ classifiers = [
 authors = [
     { name = "Mike Olden", email = "michael.olden@oldendigital.com" },
 ]
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+keywords = [
+    "Proofpoint ITM",
+    "Proofpoint",
+    "ITM",
+    "ObserveIT"
+]
 
 [project.urls]
 "Homepage" = "https://github.com/drizzo-tech/proofpoint_itm"
-"Bug Tracker" = "https://github.com/drizzo-tech/proofpoint_itm/issues"
+"Repository" = "https://github.com/drizzo-tech/proofpoint_itm"
+"Documentation" = "https://proofpoint-itm.readthedocs.io/en/latest/index.html"
+"Issues" = "https://github.com/drizzo-tech/proofpoint_itm/issues"
 
 [project.optional-dependencies]
 build = [
