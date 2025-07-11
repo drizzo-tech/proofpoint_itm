@@ -1,7 +1,9 @@
 # proofpoint_itm
+
 Proofpoint ITM API client library for python
 
 ## Installation
+
 ```
 python -m pip install proofpoint_itm
 ```
@@ -23,6 +25,9 @@ itm_client = ITMClient(
 ```
 
 ## Important changes:
+
+v0.9.0 - BREAKING CHANGE: Now uses requests package instead of custom HTTP client. All returns are now python dictionaries instead of urllib response objects. This means that all previous code that used the client will need to be updated to handle the new return types.
+
 v0.8.0 - activity_search() now uses a different backend API call that requires a different search query format. Any previous searches will need to be recreated in the new format. Generate a new exploration and view the query to see the new format.
 
 ## Documentation
