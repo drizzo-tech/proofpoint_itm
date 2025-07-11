@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "proofpoint_itm"
+version = "0.9.0"
+description = "Proofpoint ITM API client library"
+readme = "README.md"
+requires-python = ">=3.6"
+dependencies = ["requests", "pydantic"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: OS Independent",
+]
+authors = [
+    { name = "Mike Olden", email = "michael.olden@oldendigital.com" },
+]
+
+[project.urls]
+"Homepage" = "https://github.com/drizzo-tech/proofpoint_itm"
+"Bug Tracker" = "https://github.com/drizzo-tech/proofpoint_itm/issues"
+
+[project.optional-dependencies]
+build = [
+    "setuptools",
+    "wheel",
+]
