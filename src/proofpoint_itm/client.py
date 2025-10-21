@@ -202,7 +202,7 @@ class ITMClient(object):
         )
         resp.raise_for_status()
 
-        return resp["data"]
+        return resp.json()["data"]
 
     def get_rule(self, id_: str, includes: str = "*", headers: dict = None, params: dict = None) -> dict:
         """
