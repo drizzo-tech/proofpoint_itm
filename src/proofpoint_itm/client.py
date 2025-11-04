@@ -10,6 +10,7 @@ from proofpoint_itm.classes import (
 )
 import uuid
 import requests
+import json
 
 
 class ITMClient(object):
@@ -454,7 +455,7 @@ class ITMClient(object):
         )
         resp.raise_for_status()
 
-        for predicate in resp["data"]:
+        for predicate in resp.json()["data"]:
             if predicate["kind"] == "it:predicate:custom:match":
                 conditions.append(predicate)
         return conditions
@@ -1650,7 +1651,7 @@ class ITMClient(object):
             dict: A dictionary containing the API response.
 
         """
-        endpoint = "/v2/apis/activity/event-queries"
+        endpoint = "activity/event-queries"
         defaults = {"entityTypes": entity}
         params = self._prepare_params(defaults, params)
         if stream:
@@ -1671,6 +1672,14 @@ class ITMClient(object):
         )
         resp.raise_for_status()
 
+        # Handle JSONL streaming response
+        if stream:
+            results = []
+            for line in resp.text.strip().split('\n'):
+                if line:  # Skip empty lines
+                    results.append(json.loads(line))
+            return {"data": results}
+        
         return resp.json()
 
     def registry_search(
@@ -1724,4 +1733,12 @@ class ITMClient(object):
         )
         resp.raise_for_status()
 
+        # Handle JSONL streaming response
+        if stream:
+            results = []
+            for line in resp.text.strip().split('\n'):
+                if line:  # Skip empty lines
+                    results.append(json.loads(line))
+            return {"data": results}
+        
         return resp.json()
