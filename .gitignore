@@ -143,3 +143,17 @@ dev/
 
 # log files used for dev stuff
 *.log
+
+# Temporary documentation files (session notes)
+TESTING_QUICKSTART.md
+TESTING_WITH_UV.md
+TEST_SUMMARY.md
+TEST_CHEATSHEET.md
+TAG_TESTS_SUMMARY.md
+JSONL_STREAMING_FIX.md
+
+# Redundant requirements file (use pyproject.toml instead)
+requirements-test.txt
+
+# Redundant test runner (use Makefile instead)
+run_tests.sh
