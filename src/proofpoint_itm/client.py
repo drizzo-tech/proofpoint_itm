@@ -374,7 +374,7 @@ class ITMClient(object):
         )
         resp.raise_for_status()
 
-        return resp["data"]
+        return resp.json()["data"]
 
     def get_predicate(self, id_: str, includes: str = "*", headers: dict = None, params: dict = None) -> dict:
         """
@@ -604,9 +604,9 @@ class ITMClient(object):
         )
         resp.raise_for_status()
 
-        return resp["data"]
+        return resp.json()["data"]
 
-    def get_tag(self, id_: str, includes: str = "*", headers: dict = None, params: dict = None) -> dict:
+    def get_tag(self, id_: str, headers: dict = None, params: dict = None) -> dict:
         """
         Get tag by ID.
 
@@ -622,26 +622,17 @@ class ITMClient(object):
             dict: A dictionary of tag information.
 
         """
-        endpoint = f"depot/tags/{id_}"
-        defaults = {"includes": includes}
-        params = self._prepare_params(defaults, params)
-
-        if self.development_mode:
-            return {
-                "url": self.build_url(endpoint),
-                "headers": headers,
-                "params": params,
+        query = {
+            "query": {
+                "bool": {
+                    "must": {
+                        "term": {"id": f"{id_}"}
+                    }
+                }
             }
-
-        resp = self.session.get(
-            self.build_url(endpoint),
-            headers=headers,
-            params=params,
-            timeout=self.timeout,
-        )
-        resp.raise_for_status()
-
-        return resp.json()
+        }
+        res = self.depot_search(query, "tag", params, headers)
+        return res['data'][0]
 
     def update_tag(self, id_: str, tag: Tag, headers: dict = None, test: bool = False) -> dict:
         """
