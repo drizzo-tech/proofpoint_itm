@@ -28,10 +28,12 @@ tests/
 ├── test_client_predicates.py   # Predicates CRUD operations tests
 ├── test_client_tags.py         # Tags CRUD operations tests
 ├── test_client_search.py       # Search methods tests
+├── test_client_endpoints.py    # Endpoints methods tests
+├── test_client_workflow.py     # Workflow status update tests
 ├── test_client_errors.py       # Error handling tests
 └── integration/                # Integration tests
     ├── __init__.py
-    └── test_integration.py
+    └── test_integration.py     # Real API integration tests
 ```
 
 ## Running Tests
@@ -188,11 +190,44 @@ make test-integration # Run integration tests (requires .env)
 make clean            # Remove test artifacts and cache
 ```
 
-## Coverage Goals
+## Test Coverage
+
+### What's Tested
+
+**Client Methods:**
+- ✅ Authentication & initialization
+- ✅ Rules CRUD operations
+- ✅ Predicates CRUD operations
+- ✅ Tags CRUD operations (including `add_activity_tag`)
+- ✅ Search methods (depot, notification, ruler, activity, registry)
+- ✅ Endpoints methods (with custom queries)
+- ✅ Workflow updates (`update_event_workflow`)
+- ✅ Activity methods (assignee, tags)
+- ✅ Error handling (HTTP errors, network errors, malformed responses)
+
+**Integration Tests:**
+- ✅ Activity search for alerts
+- ✅ Add tags to real alerts
+- ✅ Add assignees to real alerts
+- ✅ Update workflow status on real alerts
+- ✅ Get endpoints with custom queries
+- ✅ Tags, policies, and other resources
+
+**Test Count:** 100+ tests across unit and integration suites
+
+### Bugs Found & Fixed
+
+The test suite discovered and helped fix several real bugs:
+1. **`activity_search` URL bug** - Duplicate `/v2/apis/` in endpoint
+2. **`get_conditions` response parsing** - Missing `.json()` call
+3. **JSONL streaming** - Improper handling of `stream=True` responses
+4. **`update_event_workflow` body structure** - Incorrect nested structure
+
+### Coverage Goals
 
 - **Target:** 90%+ code coverage
 - **Priority:** All public methods should have tests
-- **Focus:** Response parsing, error handling, parameter merging
+- **Focus:** Response parsing, error handling, parameter merging, JSONL streaming
 
 ## Continuous Integration
 
@@ -214,6 +249,17 @@ pip install -e .
 ### Authentication Errors in Integration Tests
 
 Check that your `.env` file has valid credentials and is in the project root.
+
+**Required environment variables:**
+```bash
+CLIENT_ID=your-client-id
+CLIENT_SECRET=your-client-secret
+TENANT_ID=your-tenant-id
+INTEGRATION_TEST=true
+
+# Optional for specific tests
+TEST_ADMIN_ID=your-admin-user-id  # For assignee tests
+```
 
 ### Timeout Errors
 
