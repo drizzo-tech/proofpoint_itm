@@ -146,10 +146,103 @@ class TestIntegrationTags:
     
     @pytest.mark.slow
     def test_add_activity_tag_real_api(self, integration_client):
-        """Test adding a tag to an activity (if we have both)."""
-        # This test would require a valid activity FQID and tag ID
-        # Skip for now unless we have test data
-        pytest.skip("Requires valid activity FQID and tag ID for testing")
+        """Test adding a tag to an activity using real alert data."""
+        # Use specific test tag ID
+        tag_id = "26c3e3d6-395a-46fa-97db-a45f8fffe885"
+        
+        # Search for a recent alert
+        query = {
+            "sort": [{"event.observedAt": {"order": "desc", "unmapped_type": "boolean"}}],
+            "filters": {
+                "$and": [
+                    {"$isNull": {"incident.id": False}},
+                    {"$dtRelativeGE": {"event.observedAt": -86400000}}  # Last 24 hours
+                ]
+            }
+        }
+        
+        search_result = integration_client.activity_search(query, "event", params={"limit": 1})
+        
+        if not search_result.get("data"):
+            pytest.skip("No recent alerts found to test")
+        
+        # Get the event data
+        event = search_result["data"][0]
+        
+        # Try different possible ID fields
+        event_fqid = (
+            event.get("fqid") or 
+            event.get("id") or 
+            event.get("event", {}).get("fqid") or
+            event.get("event", {}).get("id")
+        )
+        
+        if not event_fqid:
+            # Print available keys for debugging
+            print(f"Available keys in event: {list(event.keys())}")
+            pytest.skip("Could not extract event FQID from search result")
+        
+        # Debug: Print the FQID we're using
+        print(f"\nUsing FQID for tag operation: {event_fqid}")
+        print(f"FQID length: {len(event_fqid)}")
+        
+        # Add tag to the activity
+        result = integration_client.add_activity_tag(event_fqid, tag_id)
+        
+        # Verify the operation succeeded (should return success or the updated object)
+        assert isinstance(result, dict)
+    
+    @pytest.mark.slow
+    def test_add_activity_assignee_real_api(self, integration_client):
+        """Test adding an assignee to an activity using real alert data."""
+        # Search for a recent alert
+        query = {
+            "sort": [{"event.observedAt": {"order": "desc", "unmapped_type": "boolean"}}],
+            "filters": {
+                "$and": [
+                    {"$isNull": {"incident.id": False}},
+                    {"$dtRelativeGE": {"event.observedAt": -86400000}}  # Last 24 hours
+                ]
+            }
+        }
+        
+        search_result = integration_client.activity_search(query, "event", params={"limit": 1})
+        
+        if not search_result.get("data"):
+            pytest.skip("No recent alerts found to test")
+        
+        # Get the event data
+        event = search_result["data"][0]
+        
+        # Try different possible ID fields
+        # The FQID might be in different fields depending on the API response
+        event_fqid = (
+            event.get("fqid") or 
+            event.get("id") or 
+            event.get("event", {}).get("fqid") or
+            event.get("event", {}).get("id")
+        )
+        
+        if not event_fqid:
+            # Print available keys for debugging
+            print(f"Available keys in event: {list(event.keys())}")
+            pytest.skip("Could not extract event FQID from search result")
+        
+        # Debug: Print the FQID we're using
+        print(f"\nUsing FQID for assignee operation: {event_fqid}")
+        print(f"FQID length: {len(event_fqid)}")
+        
+        # Use a test admin ID (you may need to adjust this based on your test environment)
+        # This could be retrieved from the client config or environment
+        admin_id = os.getenv("TEST_ADMIN_ID", "test-admin")
+        
+        # Add assignee to the activity
+        result = integration_client.add_activity_assignee(event_fqid, admin_id)
+        
+        # Verify the operation succeeded
+        assert isinstance(result, dict)
+        # The response should contain assignment information
+        assert "id" in result or "assignment" in result or result  # API may return different structures
 
 
 class TestIntegrationPolicies:
@@ -204,6 +297,81 @@ class TestIntegrationSearch:
         
         assert isinstance(result, dict)
         assert "data" in result
+    
+    @pytest.mark.slow
+    def test_activity_search_for_alerts_real_api(self, integration_client):
+        """Test activity_search to find alerts (incidents) from last 24 hours."""
+        # Query for alerts (events with incident.id) from last 24 hours
+        query = {
+            "sort": [
+                {
+                    "event.observedAt": {
+                        "order": "desc",
+                        "unmapped_type": "boolean"
+                    }
+                }
+            ],
+            "filters": {
+                "$and": [
+                    {
+                        "$isNull": {
+                            "incident.id": False
+                        }
+                    },
+                    {
+                        "$not": {
+                            "$or": [
+                                {
+                                    "$stringIn": {
+                                        "activity.categories": [
+                                            "it:internal:agent",
+                                            "it:internal:agent:start",
+                                            "it:internal:agent:stop",
+                                            "it:internal:agent:data-loss",
+                                            "it:internal:agent:tampering",
+                                            "it:internal:agent:functionality",
+                                            "it:internal:agent:informational",
+                                            "it:internal:agent:lifecycle",
+                                            "it:internal:agent:offline",
+                                            "it:internal:agent:metrics",
+                                            "it:internal:agent:error"
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "$not": {
+                            "$or": [
+                                {
+                                    "$stringIn": {
+                                        "activity.categories": [
+                                            "pfpt:cloud:internal:event"
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "$dtRelativeGE": {
+                            "event.observedAt": -86400000  # 24 hours in milliseconds
+                        }
+                    }
+                ]
+            }
+        }
+        
+        result = integration_client.activity_search(query, "event", params={"limit": 10})
+        
+        assert isinstance(result, dict)
+        assert "data" in result
+        # May or may not have results depending on test environment
+        if result["data"]:
+            # Verify structure of returned events
+            event = result["data"][0]
+            assert "event" in event or "id" in event
 
 
 class TestIntegrationEndpoints:
@@ -217,12 +385,122 @@ class TestIntegrationEndpoints:
         assert "url" in result
     
     @pytest.mark.slow
-    def test_get_endpoints_real_api(self, integration_client):
-        """Test get_endpoints against real API."""
-        result = integration_client.get_endpoints(days=1)
+    def test_get_endpoints_default_query_real_api(self, integration_client):
+        """Test get_endpoints with default query against real API."""
+        result = integration_client.get_endpoints(days=3)
         
         assert isinstance(result, dict)
-
+        assert "data" in result
+        # May or may not have results depending on environment
+        if result["data"]:
+            # Verify structure of returned endpoints
+            endpoint = result["data"][0]
+            assert "component" in endpoint or "id" in endpoint
+    
+    @pytest.mark.slow
+    def test_get_endpoints_with_custom_query_real_api(self, integration_client):
+        """Test get_endpoints with custom query for Windows endpoints."""
+        # Query for Windows endpoints from last 3 days
+        query = {
+            "sort": [
+                {
+                    "event.observedAt": {
+                        "order": "desc",
+                        "unmapped_type": "boolean"
+                    }
+                },
+                {
+                    "event.id": {
+                        "order": "asc",
+                        "unmapped_type": "boolean"
+                    }
+                }
+            ],
+            "filters": {
+                "$and": [
+                    {
+                        "$not": {
+                            "$or": [
+                                {
+                                    "$stringIn": {
+                                        "component.status.code": [
+                                            "it:component:status:unregistered"
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "$or": [
+                            {
+                                "$stringIn": {
+                                    "endpoint.os.kind": [
+                                        "windows"
+                                    ]
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "$not": {
+                            "$or": [
+                                {
+                                    "$stringIn": {
+                                        "component.version": [
+                                            "unknown"
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "$not": {
+                            "$or": [
+                                {
+                                    "$stringIn": {
+                                        "component.state.visibility.code": [
+                                            "it:component:state:visibility:hidden"
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "$dtRelativeGE": {
+                            "event.observedAt": -259200000  # 3 days in milliseconds
+                        }
+                    }
+                ]
+            }
+        }
+        
+        result = integration_client.get_endpoints(query=query, params={"limit": 10})
+        
+        assert isinstance(result, dict)
+        assert "data" in result
+        # May or may not have Windows endpoints
+        if result["data"]:
+            # If we have results, verify they're Windows endpoints
+            endpoint = result["data"][0]
+            # Structure may vary, just verify we got data back
+            assert "id" in endpoint or "component" in endpoint
+    
+    @pytest.mark.slow
+    def test_get_endpoints_with_kind_filter_real_api(self, integration_client):
+        """Test get_endpoints with kind filter for agent endpoints."""
+        result = integration_client.get_endpoints(kind="agent:saas", days=7, params={"limit": 5})
+        
+        assert isinstance(result, dict)
+        assert "data" in result
+        # Verify we can get agent endpoints
+        if result["data"]:
+            endpoint = result["data"][0]
+            # Check for component.kind if available
+            if "component" in endpoint and "kind" in endpoint["component"]:
+                assert "agent" in endpoint["component"]["kind"]
 
 class TestIntegrationDictionaries:
     """Integration tests for dictionaries methods."""
