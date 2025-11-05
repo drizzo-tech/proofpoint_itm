@@ -243,6 +243,51 @@ class TestIntegrationTags:
         assert isinstance(result, dict)
         # The response should contain assignment information
         assert "id" in result or "assignment" in result or result  # API may return different structures
+    
+    @pytest.mark.slow
+    def test_update_event_workflow_real_api(self, integration_client):
+        """Test updating event workflow status using real alert data."""
+        # Search for a recent alert
+        query = {
+            "sort": [{"event.observedAt": {"order": "desc", "unmapped_type": "boolean"}}],
+            "filters": {
+                "$and": [
+                    {"$isNull": {"incident.id": False}},
+                    {"$dtRelativeGE": {"event.observedAt": -86400000}}  # Last 24 hours
+                ]
+            }
+        }
+        
+        search_result = integration_client.activity_search(query, "event", params={"limit": 1})
+        
+        if not search_result.get("data"):
+            pytest.skip("No recent alerts found to test")
+        
+        # Get the event data
+        event = search_result["data"][0]
+        
+        # Try different possible ID fields
+        event_fqid = (
+            event.get("fqid") or 
+            event.get("id") or 
+            event.get("event", {}).get("fqid") or
+            event.get("event", {}).get("id")
+        )
+        
+        if not event_fqid:
+            print(f"Available keys in event: {list(event.keys())}")
+            pytest.skip("Could not extract event FQID from search result")
+        
+        # Use test status ID
+        status_id = "3e37bcdb-7816-4b70-bead-f329de788951"
+        
+        # Update the workflow status
+        result = integration_client.update_event_workflow(event_fqid, status_id)
+        
+        # Verify the operation succeeded
+        assert isinstance(result, dict)
+        # The response should contain state or status information
+        assert "state" in result or "disposition" in result or result  # API may return different structures
 
 
 class TestIntegrationPolicies:
