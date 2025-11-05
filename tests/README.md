@@ -182,12 +182,25 @@ Convenient shortcuts for common tasks:
 
 ```bash
 make help             # Show all available commands
+
+# Development
 make install          # Install package and test dependencies
+
+# Testing
 make test             # Run all unit tests
 make test-fast        # Run tests without slow integration tests
 make test-cov         # Run tests with coverage report
 make test-integration # Run integration tests (requires .env)
+
+# Building & Publishing
+make build            # Build package for distribution
+make build-check      # Check built package
+make publish-test     # Publish to Test PyPI
+make publish          # Publish to production PyPI
+
+# Cleanup
 make clean            # Remove test artifacts and cache
+make clean-build      # Remove build artifacts
 ```
 
 ## Test Coverage
