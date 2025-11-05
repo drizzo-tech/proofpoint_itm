@@ -1201,20 +1201,19 @@ class ITMClient(object):
 
         return resp.json()
 
-    def update_event_workflow(self, fqid: str, status: str, headers: dict = None) -> dict:
+    def update_event_workflow(self, fqid: str, status_id: str, headers: dict = None) -> dict:
         """Update workflow status of an alert/incident
 
         Args:
-            fqid_ (str): The fqid of an event/incident
-            status (str): The new status to be applied to the incident
-                Accepts new, reopened, in-progress, escalated, on-hold,
-                resolved, false-positive, not-an-issue
+            fqid (str): The fqid of an event/incident
+            status_id (str): The status ID (UUID) to be applied to the incident
+                Example: "3e37bcdb-7816-4b70-bead-f329de788951"
 
         Returns:
             dict: A dictionary containing the API response.
         """
         endpoint = f"activity/events/{fqid}/annotations/workflow"
-        data = {"state": {"status": f"incident:status:{status}"}}
+        data = {"state": {"disposition": {"status": {"id": status_id}}}}
 
         if self.development_mode:
             return {"url": self.build_url(endpoint), "headers": headers, "body": data}
