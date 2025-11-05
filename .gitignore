@@ -143,3 +143,8 @@ dev/
 
 # log files used for dev stuff
 *.log
+
+# Build artifacts
+dist/
+build/
+*.egg-info

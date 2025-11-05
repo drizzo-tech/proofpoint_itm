@@ -10,6 +10,7 @@ from proofpoint_itm.classes import (
 )
 import uuid
 import requests
+import json
 
 
 class ITMClient(object):
@@ -202,7 +203,7 @@ class ITMClient(object):
         )
         resp.raise_for_status()
 
-        return resp["data"]
+        return resp.json()["data"]
 
     def get_rule(self, id_: str, includes: str = "*", headers: dict = None, params: dict = None) -> dict:
         """
@@ -374,7 +375,7 @@ class ITMClient(object):
         )
         resp.raise_for_status()
 
-        return resp["data"]
+        return resp.json()["data"]
 
     def get_predicate(self, id_: str, includes: str = "*", headers: dict = None, params: dict = None) -> dict:
         """
@@ -454,7 +455,7 @@ class ITMClient(object):
         )
         resp.raise_for_status()
 
-        for predicate in resp["data"]:
+        for predicate in resp.json()["data"]:
             if predicate["kind"] == "it:predicate:custom:match":
                 conditions.append(predicate)
         return conditions
@@ -604,9 +605,9 @@ class ITMClient(object):
         )
         resp.raise_for_status()
 
-        return resp["data"]
+        return resp.json()["data"]
 
-    def get_tag(self, id_: str, includes: str = "*", headers: dict = None, params: dict = None) -> dict:
+    def get_tag(self, id_: str, headers: dict = None, params: dict = None) -> dict:
         """
         Get tag by ID.
 
@@ -622,26 +623,17 @@ class ITMClient(object):
             dict: A dictionary of tag information.
 
         """
-        endpoint = f"depot/tags/{id_}"
-        defaults = {"includes": includes}
-        params = self._prepare_params(defaults, params)
-
-        if self.development_mode:
-            return {
-                "url": self.build_url(endpoint),
-                "headers": headers,
-                "params": params,
+        query = {
+            "query": {
+                "bool": {
+                    "must": {
+                        "term": {"id": f"{id_}"}
+                    }
+                }
             }
-
-        resp = self.session.get(
-            self.build_url(endpoint),
-            headers=headers,
-            params=params,
-            timeout=self.timeout,
-        )
-        resp.raise_for_status()
-
-        return resp.json()
+        }
+        res = self.depot_search(query, "tag", params, headers)
+        return res['data'][0]
 
     def update_tag(self, id_: str, tag: Tag, headers: dict = None, test: bool = False) -> dict:
         """
@@ -1209,20 +1201,19 @@ class ITMClient(object):
 
         return resp.json()
 
-    def update_event_workflow(self, fqid: str, status: str, headers: dict = None) -> dict:
+    def update_event_workflow(self, fqid: str, status_id: str, headers: dict = None) -> dict:
         """Update workflow status of an alert/incident
 
         Args:
-            fqid_ (str): The fqid of an event/incident
-            status (str): The new status to be applied to the incident
-                Accepts new, reopened, in-progress, escalated, on-hold,
-                resolved, false-positive, not-an-issue
+            fqid (str): The fqid of an event/incident
+            status_id (str): The status ID (UUID) to be applied to the incident
+                Example: "3e37bcdb-7816-4b70-bead-f329de788951"
 
         Returns:
             dict: A dictionary containing the API response.
         """
         endpoint = f"activity/events/{fqid}/annotations/workflow"
-        data = {"state": {"status": f"incident:status:{status}"}}
+        data = {"state": {"disposition": {"status": {"id": status_id}}}}
 
         if self.development_mode:
             return {"url": self.build_url(endpoint), "headers": headers, "body": data}
@@ -1659,7 +1650,7 @@ class ITMClient(object):
             dict: A dictionary containing the API response.
 
         """
-        endpoint = "/v2/apis/activity/event-queries"
+        endpoint = "activity/event-queries"
         defaults = {"entityTypes": entity}
         params = self._prepare_params(defaults, params)
         if stream:
@@ -1680,6 +1671,14 @@ class ITMClient(object):
         )
         resp.raise_for_status()
 
+        # Handle JSONL streaming response
+        if stream:
+            results = []
+            for line in resp.text.strip().split('\n'):
+                if line:  # Skip empty lines
+                    results.append(json.loads(line))
+            return {"data": results}
+        
         return resp.json()
 
     def registry_search(
@@ -1733,4 +1732,12 @@ class ITMClient(object):
         )
         resp.raise_for_status()
 
+        # Handle JSONL streaming response
+        if stream:
+            results = []
+            for line in resp.text.strip().split('\n'):
+                if line:  # Skip empty lines
+                    results.append(json.loads(line))
+            return {"data": results}
+        
         return resp.json()
