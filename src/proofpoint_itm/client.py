@@ -1,16 +1,19 @@
+import json
+import uuid
+
+import requests
+
 from proofpoint_itm.classes import (
-    Predicate,
-    Rule,
-    Tag,
     AgentPolicy,
-    TargetGroup,
-    Dictionary,
     Detector,
     DetectorSet,
+    Dictionary,
+    Predicate,
+    Rule,
+    SmartID,
+    Tag,
+    TargetGroup,
 )
-import uuid
-import requests
-import json
 
 
 class ITMClient(object):
@@ -623,17 +626,9 @@ class ITMClient(object):
             dict: A dictionary of tag information.
 
         """
-        query = {
-            "query": {
-                "bool": {
-                    "must": {
-                        "term": {"id": f"{id_}"}
-                    }
-                }
-            }
-        }
+        query = {"query": {"bool": {"must": {"term": {"id": f"{id_}"}}}}}
         res = self.depot_search(query, "tag", params, headers)
-        return res['data'][0]
+        return res["data"][0]
 
     def update_tag(self, id_: str, tag: Tag, headers: dict = None, test: bool = False) -> dict:
         """
@@ -1419,7 +1414,7 @@ class ITMClient(object):
 
         """
         endpoint = "ruler/configurations/dlp/detectorsets"
-        data = detector_set.as_dict()
+        data = detector_set.create_payload()
 
         if self.development_mode:
             return {"url": self.build_url(endpoint), "headers": headers, "body": data}
@@ -1473,6 +1468,33 @@ class ITMClient(object):
             return {"url": self.build_url(endpoint), "headers": headers, "params": None}
 
         resp = self.session.get(self.build_url(endpoint), headers=headers, timeout=self.timeout)
+        resp.raise_for_status()
+
+        return resp.json()
+
+    def create_smartid(self, smartid: SmartID, headers: dict = None) -> dict:
+        """
+        Create a new smart ID.
+
+        Args:
+            smartid (SmartID):
+                The `SmartID` object representing the new smart ID to be created.
+            headers (dict, optional):
+                Additional headers to include in the HTTP request.
+                Defaults to an empty dictionary.
+
+        Returns:
+            dict: A dictionary containing the API response.
+
+        """
+        endpoint = "ruler/configurations/dlp/smartids"
+
+        if self.development_mode:
+            return {"url": self.build_url(endpoint), "headers": headers, "body": smartid.create_payload(drop_none=True)}
+
+        resp = self.session.post(
+            self.build_url(endpoint), headers=headers, json=smartid.create_payload(drop_none=True), timeout=self.timeout
+        )
         resp.raise_for_status()
 
         return resp.json()
@@ -1674,11 +1696,11 @@ class ITMClient(object):
         # Handle JSONL streaming response
         if stream:
             results = []
-            for line in resp.text.strip().split('\n'):
+            for line in resp.text.strip().split("\n"):
                 if line:  # Skip empty lines
                     results.append(json.loads(line))
             return {"data": results}
-        
+
         return resp.json()
 
     def registry_search(
@@ -1735,9 +1757,9 @@ class ITMClient(object):
         # Handle JSONL streaming response
         if stream:
             results = []
-            for line in resp.text.strip().split('\n'):
+            for line in resp.text.strip().split("\n"):
                 if line:  # Skip empty lines
                     results.append(json.loads(line))
             return {"data": results}
-        
+
         return resp.json()
