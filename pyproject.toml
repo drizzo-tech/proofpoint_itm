@@ -4,10 +4,10 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "proofpoint_itm"
-version = "0.10.0"
+version = "0.11.7"
 description = "Proofpoint ITM API client library"
 readme = "README.md"
-requires-python = ">=3.8.1"
+requires-python = ">=3.10"
 dependencies = ["requests", "pydantic"]
 classifiers = [
     "Programming Language :: Python :: 3",
